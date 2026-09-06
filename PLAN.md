@@ -1,28 +1,32 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 0 — Repo scaffold
+STATUS: Phase 4 complete (Milestone 1 — Consulting foundation) — starting Phase 5 (Architecture)
 LAST UPDATED: 2026-09-06
 
 COMPLETED:
 - Repository folder structure created (01-discovery ... 13-case-study, ADRs)
-- AGENTS.md, .gitignore, .env.example, requirements.txt added
-- STATUS block added to PLAN.md
+- AGENTS.md, .gitignore, .env.example, requirements.txt, pyproject.toml, LICENSE, README added
+- Phase 1 (Discovery): 01-discovery/discovery-script.md, stakeholder-map.md, discovery-notes.md
+- Phase 2 (Requirements): 01-discovery/requirements.md (R01-R12)
+- Phase 3 (Current-state process): 02-process-mapping/current-state.md
+- Phase 4 (Future-state process): 02-process-mapping/future-state.md, process-analysis.md
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 1: Discovery — 01-discovery/discovery-script.md, stakeholder-map.md, discovery-notes.md
+- Phase 5: Target architecture — 03-architecture/system-architecture.md, integration-map.md, security-model.md, first ADRs
 
 BLOCKERS:
 - (none)
 
 KNOWN LIMITATIONS:
-- No code, data, schema, or API built yet — spec and scaffold only.
+- No code, data, schema, or API built yet — discovery/process-mapping docs only so far.
+- current-state.png / future-state.png diagrams not yet drawn — ASCII flow diagrams in current-state.md/future-state.md stand in for now.
 
 CURRENT TECH STACK:
-- Python (pandas, SQLAlchemy, Pydantic, pytest), FastAPI, PostgreSQL/SQLite, Streamlit — none yet implemented.
+- Python (pandas, SQLAlchemy, Pydantic, pytest), FastAPI, PostgreSQL/SQLite, Streamlit — not yet implemented (docs/discovery phase only so far).
 
 LAST VERIFIED:
 - Tests: n/a
