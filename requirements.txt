@@ -1,0 +1,9 @@
+pandas
+sqlalchemy
+pydantic
+psycopg2-binary
+fastapi
+uvicorn[standard]
+pytest
+python-dotenv
+streamlit
