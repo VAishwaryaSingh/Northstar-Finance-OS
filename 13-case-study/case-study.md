@@ -62,3 +62,5 @@ A target architecture with six layers — Sources, Integration, Core, AI, Contro
 ## Next steps
 
 What production would actually require, beyond this POC: real legacy data (this POC's messiness is deliberately planted, not extracted from a real system); a real API key and live-tested AI provider (this POC's `AnthropicLLMClient` is real, correct code, never exercised, by choice — see [09-ai/README.md](../09-ai/README.md)); the accounting-automation and AI rules wired into the live API rather than run as standalone scripts (a documented limitation in every relevant phase's `controls.md`); a confirmed (not assumed) approval threshold and audit-sample rate; and a real UAT cycle per [implementation-plan.md](../12-implementation/implementation-plan.md) Phase 5, specifically re-running this project's own deliberate control-break tests against production-like data and real users, not just synthetic data.
+
+**[../KNOWN_ISSUES.md](../KNOWN_ISSUES.md)** consolidates every item above, plus every real bug found and fixed during development, into one page — the single place to see the full, honest state of what's built vs. what's assumed vs. what's genuinely unresolved.

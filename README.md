@@ -83,6 +83,10 @@ Full setup detail lives in each phase's own `README.md` — [05-sql/README.md](.
 
 Full discussion in [13-case-study/case-study.md](./13-case-study/case-study.md)'s Lessons section. The short version: two real bugs were found only by running code against real data, not by review alone; the highest-leverage design decision (validate once, at ingestion, not repeatedly downstream) was architectural, made before any code existed; and the most valuable AI-safety result wasn't a clean evaluation pass — it was finding, and disclosing, a specific case that passed every documented control and was still wrong.
 
+## What are the known bugs and limitations?
+
+**[KNOWN_ISSUES.md](./KNOWN_ISSUES.md)** — every real bug found and fixed during development (with root cause and fix), the AI evaluation's disclosed gap, every documented assumption not yet confirmed with a real client, every integration not yet wired end-to-end, and every deliberate scope boundary. One page, instead of the eleven different `README.md`/`controls.md` files each item is also discussed in.
+
 ---
 
 ## Project structure and status
