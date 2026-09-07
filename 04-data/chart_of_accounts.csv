@@ -1,0 +1,26 @@
+account_code,account_name,account_type,normal_balance,account_id,status
+1000,Cash and Cash Equivalents,asset,debit,ACC-001,active
+1010,Accounts Receivable,asset,debit,ACC-002,active
+1020,Prepaid Expenses,asset,debit,ACC-003,active
+1030,Intercompany Receivable,asset,debit,ACC-004,active
+1040,Fixed Assets - Equipment,asset,debit,ACC-005,active
+2000,Accounts Payable,liability,credit,ACC-006,active
+2010,Accrued Expenses,liability,credit,ACC-007,active
+2020,Intercompany Payable,liability,credit,ACC-008,active
+2030,Accrued Payroll,liability,credit,ACC-009,active
+2040,VAT / Sales Tax Payable,liability,credit,ACC-010,active
+3000,Share Capital,equity,credit,ACC-011,active
+3010,Retained Earnings,equity,credit,ACC-012,active
+4000,Patient Services Revenue,revenue,credit,ACC-013,active
+4010,Insurance Reimbursement Revenue,revenue,credit,ACC-014,active
+4020,Corporate Wellness Revenue,revenue,credit,ACC-015,active
+4030,Other Operating Revenue,revenue,credit,ACC-016,active
+5000,Medical Supplies Expense,expense,debit,ACC-017,active
+5010,Facilities Expense,expense,debit,ACC-018,active
+5020,IT & Software Expense,expense,debit,ACC-019,active
+5030,Payroll Expense,expense,debit,ACC-020,active
+5040,Professional Fees,expense,debit,ACC-021,active
+5050,Depreciation Expense,expense,debit,ACC-022,active
+5060,FX Revaluation Expense,expense,debit,ACC-023,active
+5070,Bank Charges,expense,debit,ACC-024,active
+5090,Office Supplies Expense,expense,debit,ACC-025,active

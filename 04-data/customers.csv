@@ -1,0 +1,16 @@
+customer_id,customer_code,customer_name,entity_code,billing_currency,status
+CUST-001,C0001,Anthem Health Partners,NSS-UK,GBP,active
+CUST-002,C0002,Bright Path Insurance Co,NHH-UK,GBP,active
+CUST-003,C0003,Meridian Corporate Wellness,NHH-UK,GBP,active
+CUST-004,C0004,Lakeside Employer Health Plan,NSS-UK,GBP,active
+CUST-005,C0005,Horizon Diagnostics Network,NHS-US,USD,active
+CUST-006,C0006,Coastal Regional Insurers,NHH-UK,GBP,active
+CUST-007,C0007,Summit Corporate Health,NHH-UK,GBP,active
+CUST-008,C0008,Fairview Mutual Insurance,NHH-UK,GBP,active
+CUST-009,C0009,Riverside Employer Group,NSS-UK,GBP,active
+CUST-010,C0010,Northgate Insurance Partners,NHH-UK,GBP,active
+CUST-011,C0011,Clearwater Health Alliance,NSS-UK,GBP,active
+CUST-012,C0012,Pinecrest Corporate Benefits,NSS-UK,GBP,active
+CUST-013,C0013,Ashford Mutual Health,NSS-UK,GBP,active
+CUST-014,C0014,Bellmont Insurance Group,NHH-UK,GBP,active
+CUST-015,C0015,Cedarview Employer Plan,NSS-UK,GBP,active

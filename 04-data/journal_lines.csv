@@ -1,0 +1,89 @@
+journal_line_id,journal_entry_id,account_code,debit_amount,credit_amount,line_description
+JL-0001,JE-0001,5070,5745.8,0.0,Payroll Accrual line
+JL-0002,JE-0001,2010,0.0,5745.8,Payroll Accrual line
+JL-0003,JE-0002,5020,4372.32,0.0,Prepayment Release line
+JL-0004,JE-0002,2010,0.0,4372.32,Prepayment Release line
+JL-0005,JE-0003,5030,2260.68,0.0,Fx Revaluation line
+JL-0006,JE-0003,2010,0.0,2260.68,Fx Revaluation line
+JL-0007,JE-0004,1010,1259.81,0.0,Ar Ap Subledger line
+JL-0008,JE-0004,5000,0.0,1259.81,Ar Ap Subledger line
+JL-0009,JE-0005,5040,14023.47,0.0,Fx Revaluation line
+JL-0010,JE-0005,2010,0.0,14023.47,Fx Revaluation line
+JL-0011,JE-0006,5030,14713.55,0.0,Fx Revaluation line
+JL-0012,JE-0006,2010,0.0,14713.55,Fx Revaluation line
+JL-0013,JE-0007,5090,13867.09,0.0,Prepayment Release line
+JL-0014,JE-0007,2010,0.0,13867.09,Prepayment Release line
+JL-0015,JE-0008,2000,6248.7,0.0,Ar Ap Subledger line
+JL-0016,JE-0008,4000,0.0,6248.7,Ar Ap Subledger line
+JL-0017,JE-0009,5070,12643.4,0.0,Intercompany line
+JL-0018,JE-0009,2010,0.0,12643.4,Intercompany line
+JL-0019,JE-0010,5090,5504.3,0.0,Fx Revaluation line
+JL-0020,JE-0010,2010,0.0,5504.3,Fx Revaluation line
+JL-0021,JE-0011,5030,13109.22,0.0,Intercompany line
+JL-0022,JE-0011,2010,0.0,13109.22,Intercompany line
+JL-0023,JE-0012,1010,15735.35,0.0,Ar Ap Subledger line
+JL-0024,JE-0012,4000,0.0,15735.35,Ar Ap Subledger line
+JL-0025,JE-0013,2000,13610.09,0.0,Ar Ap Subledger line
+JL-0026,JE-0013,4000,0.0,13610.09,Ar Ap Subledger line
+JL-0027,JE-0014,5070,13175.76,0.0,Accrual line
+JL-0028,JE-0014,2010,0.0,13175.76,Accrual line
+JL-0029,JE-0015,5060,10975.44,0.0,Accrual line
+JL-0030,JE-0015,2010,0.0,10975.44,Accrual line
+JL-0031,JE-0016,5040,7307.61,0.0,Accrual line
+JL-0032,JE-0016,2010,0.0,7307.61,Accrual line
+JL-0033,JE-0017,5090,12850.6,0.0,Accrual line
+JL-0034,JE-0017,2010,0.0,12850.6,Accrual line
+JL-0035,JE-0018,5000,13149.55,0.0,Fx Revaluation line
+JL-0036,JE-0018,2010,0.0,13149.55,Fx Revaluation line
+JL-0037,JE-0019,2000,14003.59,0.0,Ar Ap Subledger line
+JL-0038,JE-0019,5000,0.0,14003.59,Ar Ap Subledger line
+JL-0039,JE-0020,2000,15447.02,0.0,Ar Ap Subledger line
+JL-0040,JE-0020,4000,0.0,15447.02,Ar Ap Subledger line
+JL-0041,JE-0021,5040,12044.08,0.0,Intercompany line
+JL-0042,JE-0021,2010,0.0,12044.08,Intercompany line
+JL-0043,JE-0022,5020,8201.91,0.0,Prepayment Release line
+JL-0044,JE-0022,2010,0.0,8201.91,Prepayment Release line
+JL-0045,JE-0023,5030,9485.8,0.0,Fx Revaluation line
+JL-0046,JE-0023,2010,0.0,9485.8,Fx Revaluation line
+JL-0047,JE-0024,1010,9761.85,0.0,Ar Ap Subledger line
+JL-0048,JE-0024,5000,0.0,9761.85,Ar Ap Subledger line
+JL-0049,JE-0025,5050,6905.08,0.0,Accrual line
+JL-0050,JE-0025,2010,0.0,6905.08,Accrual line
+JL-0051,JE-0026,5070,10509.55,0.0,Fx Revaluation line
+JL-0052,JE-0026,2010,0.0,10509.55,Fx Revaluation line
+JL-0053,JE-0027,5010,12873.36,0.0,Fx Revaluation line
+JL-0054,JE-0027,2010,0.0,12873.36,Fx Revaluation line
+JL-0055,JE-0028,5040,4790.15,0.0,Payroll Accrual line
+JL-0056,JE-0028,2010,0.0,4790.15,Payroll Accrual line
+JL-0057,JE-0029,5000,8705.97,0.0,Accrual line
+JL-0058,JE-0029,2010,0.0,8705.97,Accrual line
+JL-0059,JE-0030,1010,16823.94,0.0,Ar Ap Subledger line
+JL-0060,JE-0030,5000,0.0,16823.94,Ar Ap Subledger line
+JL-0061,JE-0031,5020,4134.09,0.0,Payroll Accrual line
+JL-0062,JE-0031,2010,0.0,4134.09,Payroll Accrual line
+JL-0063,JE-0032,5020,8903.82,0.0,Accrual line
+JL-0064,JE-0032,2010,0.0,8903.82,Accrual line
+JL-0065,JE-0033,5090,3411.52,0.0,Prepayment Release line
+JL-0066,JE-0033,2010,0.0,3411.52,Prepayment Release line
+JL-0067,JE-0034,1010,6178.02,0.0,Ar Ap Subledger line
+JL-0068,JE-0034,5000,0.0,6178.02,Ar Ap Subledger line
+JL-0069,JE-0035,5010,7290.81,0.0,Accrual line
+JL-0070,JE-0035,2010,0.0,7290.81,Accrual line
+JL-0071,JE-0036,5090,14525.41,0.0,Fx Revaluation line
+JL-0072,JE-0036,2010,0.0,14525.41,Fx Revaluation line
+JL-0073,JE-0037,5040,7094.4,0.0,Accrual line
+JL-0074,JE-0037,2010,0.0,7094.4,Accrual line
+JL-0075,JE-0038,5070,10285.13,0.0,Accrual line
+JL-0076,JE-0038,2010,0.0,10285.13,Accrual line
+JL-0077,JE-0039,1010,12591.56,0.0,Ar Ap Subledger line
+JL-0078,JE-0039,5000,0.0,12591.56,Ar Ap Subledger line
+JL-0079,JE-0040,1010,8757.62,0.0,Ar Ap Subledger line
+JL-0080,JE-0040,4000,0.0,8757.62,Ar Ap Subledger line
+JL-0081,JE-0041,5090,7077.83,0.0,Fx Revaluation line
+JL-0082,JE-0041,2010,0.0,7077.83,Fx Revaluation line
+JL-0083,JE-0042,5070,9996.37,0.0,Fx Revaluation line
+JL-0084,JE-0042,2010,0.0,9996.37,Fx Revaluation line
+JL-0085,JE-0043,5070,3650.41,0.0,Intercompany line
+JL-0086,JE-0043,2010,0.0,3650.41,Intercompany line
+JL-0087,JE-0044,2000,14027.93,0.0,Ar Ap Subledger line
+JL-0088,JE-0044,5000,0.0,14027.93,Ar Ap Subledger line

@@ -1,0 +1,4 @@
+entity_id,entity_code,entity_name,country,functional_currency,status
+ENT-001,NHH-UK,Northstar Health Holdings Ltd,United Kingdom,GBP,active
+ENT-002,NHS-US,Northstar Health Services Inc,United States,USD,active
+ENT-003,NSS-UK,Northstar Shared Services Ltd,United Kingdom,GBP,active

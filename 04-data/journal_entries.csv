@@ -1,0 +1,45 @@
+journal_entry_id,entity_code,entry_date,period,currency,source,classification,status,created_by,approved_by,description
+JE-0001,NHH-UK,2026-06-21,2026-06,GBP,manual,payroll_accrual,posted,T.Marsh,D.Okafor,Payroll Accrual - NHH-UK 2026-06
+JE-0002,NHH-UK,2026-06-30,2026-06,GBP,manual,prepayment_release,posted,T.Marsh,D.Okafor,Prepayment Release - NHH-UK 2026-06
+JE-0003,NHH-UK,2026-06-23,2026-06,GBP,manual,fx_revaluation,posted,G.Lin,D.Okafor,Fx Revaluation - NHH-UK 2026-06
+JE-0004,NHH-UK,2026-06-14,2026-06,GBP,system,ar_ap_subledger,posted,G.Lin,D.Okafor,Ar Ap Subledger - NHH-UK 2026-06
+JE-0005,NHS-US,2026-06-17,2026-06,USD,manual,fx_revaluation,posted,R.Adeyemi,D.Okafor,Fx Revaluation - NHS-US 2026-06
+JE-0006,NHS-US,2026-06-15,2026-06,USD,manual,fx_revaluation,posted,R.Adeyemi,D.Okafor,Fx Revaluation - NHS-US 2026-06
+JE-0007,NHS-US,2026-06-24,2026-06,USD,manual,prepayment_release,pending_approval,G.Lin,,Prepayment Release - NHS-US 2026-06
+JE-0008,NHS-US,2026-06-26,2026-06,USD,system,ar_ap_subledger,posted,R.Adeyemi,D.Okafor,Ar Ap Subledger - NHS-US 2026-06
+JE-0009,NSS-UK,2026-06-28,2026-06,GBP,manual,intercompany,posted,G.Lin,D.Okafor,Intercompany - NSS-UK 2026-06
+JE-0010,NSS-UK,2026-06-25,2026-06,GBP,manual,fx_revaluation,posted,R.Adeyemi,D.Okafor,Fx Revaluation - NSS-UK 2026-06
+JE-0011,NSS-UK,2026-06-19,2026-06,GBP,manual,intercompany,posted,T.Marsh,D.Okafor,Intercompany - NSS-UK 2026-06
+JE-0012,NSS-UK,2026-06-02,2026-06,GBP,system,ar_ap_subledger,posted,T.Marsh,D.Okafor,Ar Ap Subledger - NSS-UK 2026-06
+JE-0013,NSS-UK,2026-06-27,2026-06,GBP,system,ar_ap_subledger,posted,G.Lin,D.Okafor,Ar Ap Subledger - NSS-UK 2026-06
+JE-0014,NHH-UK,2026-07-04,2026-07,GBP,manual,accrual,pending_approval,R.Adeyemi,,Accrual - NHH-UK 2026-07
+JE-0015,NHH-UK,2026-07-28,2026-07,GBP,manual,accrual,pending_approval,R.Adeyemi,,Accrual - NHH-UK 2026-07
+JE-0016,NHH-UK,2026-07-11,2026-07,GBP,manual,accrual,posted,R.Adeyemi,D.Okafor,Accrual - NHH-UK 2026-07
+JE-0017,NHH-UK,2026-07-13,2026-07,GBP,manual,accrual,posted,T.Marsh,D.Okafor,Accrual - NHH-UK 2026-07
+JE-0018,NHH-UK,2026-07-20,2026-07,GBP,manual,fx_revaluation,posted,G.Lin,D.Okafor,Fx Revaluation - NHH-UK 2026-07
+JE-0019,NHH-UK,2026-07-10,2026-07,GBP,system,ar_ap_subledger,pending_approval,T.Marsh,,Ar Ap Subledger - NHH-UK 2026-07
+JE-0020,NHH-UK,2026-07-23,2026-07,GBP,system,ar_ap_subledger,posted,R.Adeyemi,D.Okafor,Ar Ap Subledger - NHH-UK 2026-07
+JE-0021,NHS-US,2026-07-12,2026-07,USD,manual,intercompany,posted,T.Marsh,D.Okafor,Intercompany - NHS-US 2026-07
+JE-0022,NHS-US,2026-07-06,2026-07,USD,manual,prepayment_release,posted,G.Lin,D.Okafor,Prepayment Release - NHS-US 2026-07
+JE-0023,NHS-US,2026-07-16,2026-07,USD,manual,fx_revaluation,posted,R.Adeyemi,D.Okafor,Fx Revaluation - NHS-US 2026-07
+JE-0024,NHS-US,2026-07-09,2026-07,USD,system,ar_ap_subledger,pending_approval,T.Marsh,,Ar Ap Subledger - NHS-US 2026-07
+JE-0025,NSS-UK,2026-07-19,2026-07,GBP,manual,accrual,posted,T.Marsh,D.Okafor,Accrual - NSS-UK 2026-07
+JE-0026,NSS-UK,2026-07-28,2026-07,GBP,manual,fx_revaluation,posted,T.Marsh,D.Okafor,Fx Revaluation - NSS-UK 2026-07
+JE-0027,NSS-UK,2026-07-08,2026-07,GBP,manual,fx_revaluation,posted,T.Marsh,D.Okafor,Fx Revaluation - NSS-UK 2026-07
+JE-0028,NSS-UK,2026-07-01,2026-07,GBP,manual,payroll_accrual,posted,R.Adeyemi,D.Okafor,Payroll Accrual - NSS-UK 2026-07
+JE-0029,NSS-UK,2026-07-30,2026-07,GBP,manual,accrual,posted,R.Adeyemi,D.Okafor,Accrual - NSS-UK 2026-07
+JE-0030,NSS-UK,2026-07-29,2026-07,GBP,system,ar_ap_subledger,pending_approval,R.Adeyemi,,Ar Ap Subledger - NSS-UK 2026-07
+JE-0031,NHH-UK,2026-07-31,2026-08,GBP,manual,payroll_accrual,posted,T.Marsh,D.Okafor,Payroll Accrual - NHH-UK 2026-08
+JE-0032,NHH-UK,2026-08-03,2026-08,GBP,manual,accrual,posted,T.Marsh,D.Okafor,Accrual - NHH-UK 2026-08
+JE-0033,NHH-UK,2026-08-29,2026-08,GBP,manual,prepayment_release,posted,R.Adeyemi,D.Okafor,Prepayment Release - NHH-UK 2026-08
+JE-0034,NHH-UK,2026-08-06,2026-08,GBP,system,ar_ap_subledger,pending_approval,T.Marsh,,Ar Ap Subledger - NHH-UK 2026-08
+JE-0035,NHS-US,2026-08-05,2026-08,USD,manual,accrual,pending_approval,G.Lin,,Accrual - NHS-US 2026-08
+JE-0036,NHS-US,2026-07-28,2026-08,USD,manual,fx_revaluation,posted,G.Lin,D.Okafor,Fx Revaluation - NHS-US 2026-08
+JE-0037,NHS-US,2026-08-19,2026-08,USD,manual,accrual,pending_approval,R.Adeyemi,,Accrual - NHS-US 2026-08
+JE-0038,NHS-US,2026-08-01,2026-08,USD,manual,accrual,posted,R.Adeyemi,D.Okafor,Accrual - NHS-US 2026-08
+JE-0039,NHS-US,2026-08-21,2026-08,USD,system,ar_ap_subledger,posted,R.Adeyemi,D.Okafor,Ar Ap Subledger - NHS-US 2026-08
+JE-0040,NHS-US,2026-08-05,2026-08,USD,system,ar_ap_subledger,posted,T.Marsh,D.Okafor,Ar Ap Subledger - NHS-US 2026-08
+JE-0041,NSS-UK,2026-08-14,2026-08,GBP,manual,fx_revaluation,posted,R.Adeyemi,D.Okafor,Fx Revaluation - NSS-UK 2026-08
+JE-0042,NSS-UK,2026-08-20,2026-08,GBP,manual,fx_revaluation,posted,T.Marsh,D.Okafor,Fx Revaluation - NSS-UK 2026-08
+JE-0043,NSS-UK,2026-08-31,2026-08,GBP,manual,intercompany,posted,T.Marsh,D.Okafor,Intercompany - NSS-UK 2026-08
+JE-0044,NSS-UK,2026-08-18,2026-08,GBP,system,ar_ap_subledger,posted,G.Lin,D.Okafor,Ar Ap Subledger - NSS-UK 2026-08

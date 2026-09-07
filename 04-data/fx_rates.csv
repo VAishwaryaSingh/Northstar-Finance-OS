@@ -1,0 +1,15 @@
+fx_rate_id,currency_from,currency_to,rate_date,rate,source
+FX-001,GBP,USD,2026-06-01,1.2684,Bank of England weekly reference rate
+FX-002,GBP,USD,2026-06-08,1.259,Bank of England weekly reference rate
+FX-003,GBP,USD,2026-06-15,1.2534,Bank of England weekly reference rate
+FX-004,GBP,USD,2026-06-22,1.2535,Bank of England weekly reference rate
+FX-005,GBP,USD,2026-06-29,1.244,Bank of England weekly reference rate
+FX-006,GBP,USD,2026-07-06,1.238,Bank of England weekly reference rate
+FX-007,GBP,USD,2026-07-13,1.241,Bank of England weekly reference rate
+FX-008,GBP,USD,2026-07-20,1.2419,Bank of England weekly reference rate
+FX-009,GBP,USD,2026-07-27,1.2363,Bank of England weekly reference rate
+FX-010,GBP,USD,2026-08-03,1.2381,Bank of England weekly reference rate
+FX-011,GBP,USD,2026-08-10,1.2443,Bank of England weekly reference rate
+FX-012,GBP,USD,2026-08-17,1.2344,Bank of England weekly reference rate
+FX-013,GBP,USD,2026-08-24,1.2405,Bank of England weekly reference rate
+FX-014,GBP,USD,2026-08-31,1.2445,Bank of England weekly reference rate

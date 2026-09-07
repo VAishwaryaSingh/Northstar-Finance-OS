@@ -1,7 +1,7 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 6 complete (Milestone 3 — Data, schema design) — starting Phase 7 (Synthetic data)
+STATUS: Phase 7 complete (Milestone 3 — Data, synthetic data) — starting Phase 8 (SQL)
 LAST UPDATED: 2026-09-07
 
 COMPLETED:
@@ -13,22 +13,23 @@ COMPLETED:
 - Phase 4 (Future-state process): 02-process-mapping/future-state.md, process-analysis.md
 - Phase 5 (Target architecture): 03-architecture/system-architecture.md, integration-map.md, security-model.md; ADRs/0001-0004 (PostgreSQL, API+CSV ingestion, deterministic-rules-before-AI, retain-legacy-ERP-initially)
 - Phase 6 (Data model): 03-architecture/data-model.md — logical schema for all 14 tables (entities, users, chart_of_accounts, customers, vendors, invoices, payments, bank_transactions, journal_entries, journal_lines, intercompany_transactions, fx_rates, approvals, audit_logs), with debit=credit and maker≠checker enforced as documented constraints and every table traced to R01-R12
+- Phase 7 (Synthetic data): 04-data/generate_data.py (deterministic, seed=42) generating entities/chart_of_accounts/customers/vendors/fx_rates/invoices/payments/bank_transactions/journal_entries/journal_lines/intercompany_transactions.csv, plus README.md and an auto-generated data-quality-log.md (65 planted issues across 9 categories, verified: every journal entry balances, no journal is self-approved)
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 7: Synthetic data — 04-data/generate_data.py producing the CSVs listed in PLAN.md §10, deliberately injecting the messiness in §19 (duplicate invoices, missing entity codes, unmatched bank/intercompany transactions, inconsistent vendor names, GBP/USD mix) against the data-model.md structure
+- Phase 8: SQL — 05-sql/schema.sql (PostgreSQL DDL implementing data-model.md, including debit=credit and maker≠checker as enforced constraints), seed.sql, then the AP/bank-reconciliation/intercompany/close/reporting/controls query sets per PLAN.md §20
 
 BLOCKERS:
 - (none)
 
 KNOWN LIMITATIONS:
-- No code, data, or API built yet — discovery/process-mapping/architecture/data-model docs only so far; data-model.md is a logical design, not yet implemented as PostgreSQL DDL (that's Phase 8).
+- No schema, API, or pipeline code built yet — architecture/data-model docs and synthetic CSVs only so far; data-model.md is not yet implemented as PostgreSQL DDL (that's Phase 8), and the messy 04-data/ CSVs are not yet loaded/validated by an ingestion pipeline (that's Phase 9).
 - current-state.png / future-state.png / system-architecture.png diagrams not yet drawn — ASCII flow diagrams stand in for now.
 
 CURRENT TECH STACK:
-- Python (pandas, SQLAlchemy, Pydantic, pytest), FastAPI, PostgreSQL/SQLite, Streamlit — not yet implemented (docs/discovery phase only so far).
+- Python (pandas) used for synthetic data generation (Phase 7). SQLAlchemy, Pydantic, FastAPI, PostgreSQL/SQLite, Streamlit — not yet implemented.
 
 LAST VERIFIED:
 - Tests: n/a
