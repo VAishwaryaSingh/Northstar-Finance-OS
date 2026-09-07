@@ -1,8 +1,8 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 4 complete (Milestone 1 — Consulting foundation) — starting Phase 5 (Architecture)
-LAST UPDATED: 2026-09-06
+STATUS: Phase 5 complete (Milestone 2 — Target architecture) — starting Phase 6 (Data model)
+LAST UPDATED: 2026-09-07
 
 COMPLETED:
 - Repository folder structure created (01-discovery ... 13-case-study, ADRs)
@@ -11,19 +11,20 @@ COMPLETED:
 - Phase 2 (Requirements): 01-discovery/requirements.md (R01-R12)
 - Phase 3 (Current-state process): 02-process-mapping/current-state.md
 - Phase 4 (Future-state process): 02-process-mapping/future-state.md, process-analysis.md
+- Phase 5 (Target architecture): 03-architecture/system-architecture.md, integration-map.md, security-model.md; ADRs/0001-0004 (PostgreSQL, API+CSV ingestion, deterministic-rules-before-AI, retain-legacy-ERP-initially)
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 5: Target architecture — 03-architecture/system-architecture.md, integration-map.md, security-model.md, first ADRs
+- Phase 6: Data model — design the relational schema (entities, customers, vendors, chart_of_accounts, invoices, payments, bank_transactions, journal_entries, journal_lines, intercompany_transactions, fx_rates, users, approvals, audit_logs) per PLAN.md §18, enforcing debit = credit at the model level
 
 BLOCKERS:
 - (none)
 
 KNOWN LIMITATIONS:
-- No code, data, schema, or API built yet — discovery/process-mapping docs only so far.
-- current-state.png / future-state.png diagrams not yet drawn — ASCII flow diagrams in current-state.md/future-state.md stand in for now.
+- No code, data, schema, or API built yet — discovery/process-mapping/architecture docs only so far.
+- current-state.png / future-state.png / system-architecture.png diagrams not yet drawn — ASCII flow diagrams stand in for now.
 
 CURRENT TECH STACK:
 - Python (pandas, SQLAlchemy, Pydantic, pytest), FastAPI, PostgreSQL/SQLite, Streamlit — not yet implemented (docs/discovery phase only so far).
