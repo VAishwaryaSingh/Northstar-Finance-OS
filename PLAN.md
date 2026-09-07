@@ -1,7 +1,7 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 5 complete (Milestone 2 — Target architecture) — starting Phase 6 (Data model)
+STATUS: Phase 6 complete (Milestone 3 — Data, schema design) — starting Phase 7 (Synthetic data)
 LAST UPDATED: 2026-09-07
 
 COMPLETED:
@@ -12,18 +12,19 @@ COMPLETED:
 - Phase 3 (Current-state process): 02-process-mapping/current-state.md
 - Phase 4 (Future-state process): 02-process-mapping/future-state.md, process-analysis.md
 - Phase 5 (Target architecture): 03-architecture/system-architecture.md, integration-map.md, security-model.md; ADRs/0001-0004 (PostgreSQL, API+CSV ingestion, deterministic-rules-before-AI, retain-legacy-ERP-initially)
+- Phase 6 (Data model): 03-architecture/data-model.md — logical schema for all 14 tables (entities, users, chart_of_accounts, customers, vendors, invoices, payments, bank_transactions, journal_entries, journal_lines, intercompany_transactions, fx_rates, approvals, audit_logs), with debit=credit and maker≠checker enforced as documented constraints and every table traced to R01-R12
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 6: Data model — design the relational schema (entities, customers, vendors, chart_of_accounts, invoices, payments, bank_transactions, journal_entries, journal_lines, intercompany_transactions, fx_rates, users, approvals, audit_logs) per PLAN.md §18, enforcing debit = credit at the model level
+- Phase 7: Synthetic data — 04-data/generate_data.py producing the CSVs listed in PLAN.md §10, deliberately injecting the messiness in §19 (duplicate invoices, missing entity codes, unmatched bank/intercompany transactions, inconsistent vendor names, GBP/USD mix) against the data-model.md structure
 
 BLOCKERS:
 - (none)
 
 KNOWN LIMITATIONS:
-- No code, data, schema, or API built yet — discovery/process-mapping/architecture docs only so far.
+- No code, data, or API built yet — discovery/process-mapping/architecture/data-model docs only so far; data-model.md is a logical design, not yet implemented as PostgreSQL DDL (that's Phase 8).
 - current-state.png / future-state.png / system-architecture.png diagrams not yet drawn — ASCII flow diagrams stand in for now.
 
 CURRENT TECH STACK:
