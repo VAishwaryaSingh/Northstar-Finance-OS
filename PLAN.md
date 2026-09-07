@@ -1,7 +1,7 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 7 complete (Milestone 3 — Data, synthetic data) — starting Phase 8 (SQL)
+STATUS: Phase 8 complete (Milestone 3 — Data, SQL) — starting Phase 9 (Python data pipeline)
 LAST UPDATED: 2026-09-07
 
 COMPLETED:
@@ -14,22 +14,25 @@ COMPLETED:
 - Phase 5 (Target architecture): 03-architecture/system-architecture.md, integration-map.md, security-model.md; ADRs/0001-0004 (PostgreSQL, API+CSV ingestion, deterministic-rules-before-AI, retain-legacy-ERP-initially)
 - Phase 6 (Data model): 03-architecture/data-model.md — logical schema for all 14 tables (entities, users, chart_of_accounts, customers, vendors, invoices, payments, bank_transactions, journal_entries, journal_lines, intercompany_transactions, fx_rates, approvals, audit_logs), with debit=credit and maker≠checker enforced as documented constraints and every table traced to R01-R12
 - Phase 7 (Synthetic data): 04-data/generate_data.py (deterministic, seed=42) generating entities/chart_of_accounts/customers/vendors/fx_rates/invoices/payments/bank_transactions/journal_entries/journal_lines/intercompany_transactions.csv, plus README.md and an auto-generated data-quality-log.md (65 planted issues across 9 categories, verified: every journal entry balances, no journal is self-approved)
+- Phase 8 (SQL): PostgreSQL 15 installed and running locally; 05-sql/schema.sql (all 14 tables, debit=credit enforced via a deferred trigger, maker≠checker enforced via a CHECK + trigger — both proven by deliberately trying to break them), seed.sql (loads 04-data/*.csv, 86/92 invoices load cleanly, 6 excluded exactly matching the planted missing-entity-code/unmapped-vendor issues), and ap.sql/reconciliation.sql/intercompany.sql/close_analysis.sql/reporting.sql/controls.sql (PLAN.md §20's six query categories). Full pipeline (drop db → schema → seed → all six query files) re-run clean from scratch with zero errors before commit.
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 8: SQL — 05-sql/schema.sql (PostgreSQL DDL implementing data-model.md, including debit=credit and maker≠checker as enforced constraints), seed.sql, then the AP/bank-reconciliation/intercompany/close/reporting/controls query sets per PLAN.md §20
+- Phase 9: Python data pipeline — 06-python/ (ingestion, validation, transformations, reconciliation, mappings) per PLAN.md §21: read → schema validation → data-quality checks → duplicate detection → entity/account mapping → currency normalisation → DB load → reconciliation → exception report, with pytest coverage under 06-python/tests/
 
 BLOCKERS:
 - (none)
 
 KNOWN LIMITATIONS:
-- No schema, API, or pipeline code built yet — architecture/data-model docs and synthetic CSVs only so far; data-model.md is not yet implemented as PostgreSQL DDL (that's Phase 8), and the messy 04-data/ CSVs are not yet loaded/validated by an ingestion pipeline (that's Phase 9).
+- No Python pipeline or API built yet — schema/queries exist and are proven against real data, but nothing loads/validates data programmatically yet (that's Phase 9), and there's no API layer (Phase 10).
+- seed.sql's code→id mapping is plain SQL joins with no fuzzy vendor-name matching or structured exception handling — that's Phase 9's job, done properly in Python.
+- controls.sql's approval threshold (10,000) is a documented placeholder assumption, not a real policy — Phase 11 formalises this.
 - current-state.png / future-state.png / system-architecture.png diagrams not yet drawn — ASCII flow diagrams stand in for now.
 
 CURRENT TECH STACK:
-- Python (pandas) used for synthetic data generation (Phase 7). SQLAlchemy, Pydantic, FastAPI, PostgreSQL/SQLite, Streamlit — not yet implemented.
+- Python (pandas) for synthetic data generation (Phase 7). PostgreSQL 15 (installed and running locally) for the schema and queries (Phase 8). SQLAlchemy, Pydantic, FastAPI, Streamlit — not yet implemented.
 
 LAST VERIFIED:
 - Tests: n/a
