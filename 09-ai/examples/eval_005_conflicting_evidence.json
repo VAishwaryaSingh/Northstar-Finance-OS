@@ -1,0 +1,14 @@
+{
+  "category": "conflicting_evidence",
+  "invoice": {"invoice_id": "EVAL-005", "invoice_type": "AP", "amount": 600.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-002",
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Crestline Office Solutions", "suggested_account_code": "ACC-001",
+    "suggested_entity_code": "ENT-001", "confidence": 0.80,
+    "reasoning": "Invoice text mentions both office supplies and IT services; picked based on the larger line item."
+  },
+  "ground_truth": {"correct_account_code": "ACC-002", "correct_entity_code": "ENT-001"},
+  "note": "The model is wrong here, and correctly caught -- both because confidence (0.80) is below threshold and because it conflicts with the vendor's deterministic default."
+}

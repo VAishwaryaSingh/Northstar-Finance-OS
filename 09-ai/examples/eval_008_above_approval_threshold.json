@@ -1,0 +1,14 @@
+{
+  "category": "above_approval_threshold",
+  "invoice": {"invoice_id": "EVAL-008", "invoice_type": "AP", "amount": 25000.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-001",
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Medical Supplies Ltd", "suggested_account_code": "ACC-001",
+    "suggested_entity_code": "ENT-001", "confidence": 0.99,
+    "reasoning": "Perfect historical match."
+  },
+  "ground_truth": {"correct_account_code": "ACC-001", "correct_entity_code": "ENT-001"},
+  "note": "Everything else about this suggestion is clean; it is flagged purely because the amount exceeds the approval threshold from 08-accounting-automation/journal_workflow.py -- expected, policy-driven caution, not a model failure."
+}

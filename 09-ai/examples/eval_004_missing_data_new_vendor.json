@@ -1,0 +1,13 @@
+{
+  "category": "missing_data",
+  "invoice": {"invoice_id": "EVAL-004", "invoice_type": "AP", "amount": 200.0, "currency": "GBP"},
+  "vendor_default_account_code": null,
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Brand New Vendor Inc", "suggested_account_code": "ACC-001",
+    "suggested_entity_code": "ENT-001", "confidence": 0.35,
+    "reasoning": "No prior invoices from this vendor exist to compare against; best guess only."
+  },
+  "ground_truth": {"correct_account_code": "ACC-001", "correct_entity_code": "ENT-001"}
+}

@@ -1,0 +1,13 @@
+{
+  "category": "high_confidence_correct",
+  "invoice": {"invoice_id": "EVAL-001", "invoice_type": "AP", "amount": 450.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-001",
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Medical Supplies Ltd", "suggested_account_code": "ACC-001",
+    "suggested_entity_code": "ENT-001", "confidence": 0.97,
+    "reasoning": "Matches this vendor's default account and historical invoice pattern."
+  },
+  "ground_truth": {"correct_account_code": "ACC-001", "correct_entity_code": "ENT-001"}
+}

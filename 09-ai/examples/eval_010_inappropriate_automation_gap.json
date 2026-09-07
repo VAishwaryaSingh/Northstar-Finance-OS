@@ -1,0 +1,14 @@
+{
+  "category": "inappropriate_automation_gap",
+  "invoice": {"invoice_id": "EVAL-010", "invoice_type": "AP", "amount": 120.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-001",
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Medical Supplies Ltd", "suggested_account_code": "ACC-001",
+    "suggested_entity_code": "ENT-001", "confidence": 0.99,
+    "reasoning": "Matches this vendor's default account exactly."
+  },
+  "ground_truth": {"correct_account_code": "ACC-002", "correct_entity_code": "ENT-001"},
+  "note": "Deliberately constructed gap case: this specific invoice from an otherwise-reliable vendor was actually a genuine one-off exception (e.g. a different type of purchase from the same supplier) that needed a different account. Nothing available to the system -- not the vendor's default, not the model's confidence -- signals that anything is unusual, so every check passes and the entry auto-approves. It is, in fact, wrong. This is what evaluation.md's inappropriate_automation_rate metric exists to surface: the residual risk that remains even after every documented control passes."
+}

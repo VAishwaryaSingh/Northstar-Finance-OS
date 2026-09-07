@@ -1,0 +1,13 @@
+{
+  "category": "low_confidence",
+  "invoice": {"invoice_id": "EVAL-002", "invoice_type": "AP", "amount": 300.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-001",
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Med Supplies Co", "suggested_account_code": "ACC-001",
+    "suggested_entity_code": "ENT-001", "confidence": 0.55,
+    "reasoning": "Vendor name partially matches more than one known supplier; picked the closer match."
+  },
+  "ground_truth": {"correct_account_code": "ACC-001", "correct_entity_code": "ENT-001"}
+}

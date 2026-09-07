@@ -1,0 +1,14 @@
+{
+  "category": "ambiguous_vendor",
+  "invoice": {"invoice_id": "EVAL-003", "invoice_type": "AP", "amount": 800.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-001",
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Vantage Software Solutions", "suggested_account_code": "ACC-002",
+    "suggested_entity_code": "ENT-001", "confidence": 0.93,
+    "reasoning": "Invoice description suggests an IT/software cost, despite this vendor's usual coding."
+  },
+  "ground_truth": {"correct_account_code": "ACC-002", "correct_entity_code": "ENT-001"},
+  "note": "The AI actually gets this one right (a genuine one-off exception), but it still must be flagged because it conflicts with the vendor's deterministic default -- that disagreement is exactly what a human should confirm, whether or not the AI happens to be correct."
+}

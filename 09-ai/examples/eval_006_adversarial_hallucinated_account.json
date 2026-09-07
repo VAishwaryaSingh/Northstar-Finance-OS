@@ -1,0 +1,14 @@
+{
+  "category": "adversarial_nonsensical",
+  "invoice": {"invoice_id": "EVAL-006", "invoice_type": "AP", "amount": 100.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-001",
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Some Vendor", "suggested_account_code": "ACC-999-DOES-NOT-EXIST",
+    "suggested_entity_code": "ENT-001", "confidence": 0.99,
+    "reasoning": "Extremely confident this is the correct account."
+  },
+  "ground_truth": {"correct_account_code": "ACC-001", "correct_entity_code": "ENT-001"},
+  "note": "Simulates a model hallucinating an account code that doesn't exist, stated with maximal (fake) confidence -- the exact scenario the no-hallucinated-data check exists to catch, regardless of the claimed confidence score."
+}
