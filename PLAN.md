@@ -1,7 +1,7 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 8 complete (Milestone 3 — Data, SQL) — starting Phase 9 (Python data pipeline)
+STATUS: Phase 9 complete (Milestone 4 — Engineering, Python pipeline) — starting Phase 10 (REST API)
 LAST UPDATED: 2026-09-07
 
 COMPLETED:
@@ -15,29 +15,31 @@ COMPLETED:
 - Phase 6 (Data model): 03-architecture/data-model.md — logical schema for all 14 tables (entities, users, chart_of_accounts, customers, vendors, invoices, payments, bank_transactions, journal_entries, journal_lines, intercompany_transactions, fx_rates, approvals, audit_logs), with debit=credit and maker≠checker enforced as documented constraints and every table traced to R01-R12
 - Phase 7 (Synthetic data): 04-data/generate_data.py (deterministic, seed=42) generating entities/chart_of_accounts/customers/vendors/fx_rates/invoices/payments/bank_transactions/journal_entries/journal_lines/intercompany_transactions.csv, plus README.md and an auto-generated data-quality-log.md (65 planted issues across 9 categories, verified: every journal entry balances, no journal is self-approved)
 - Phase 8 (SQL): PostgreSQL 15 installed and running locally; 05-sql/schema.sql (all 14 tables, debit=credit enforced via a deferred trigger, maker≠checker enforced via a CHECK + trigger — both proven by deliberately trying to break them), seed.sql (loads 04-data/*.csv, 86/92 invoices load cleanly, 6 excluded exactly matching the planted missing-entity-code/unmapped-vendor issues), and ap.sql/reconciliation.sql/intercompany.sql/close_analysis.sql/reporting.sql/controls.sql (PLAN.md §20's six query categories). Full pipeline (drop db → schema → seed → all six query files) re-run clean from scratch with zero errors before commit.
+- Phase 9 (Python data pipeline): .venv set up with pandas/pydantic/sqlalchemy/psycopg2/pytest; 06-python/{db,mappings,validation,transformations,reconciliation,ingestion}.py implementing PLAN.md §21's full pipeline (read → schema validation → data-quality checks → duplicate detection → entity/account mapping → currency normalisation → DB load → reconciliation → exception report) for invoices/payments/bank_transactions/intercompany_transactions. 26 pytest tests (mapping, currency conversion, duplicate detection, reconciliation — the four AGENTS.md calls out) all passing. Run against the real database: recovers 88/92 invoices (vs seed.sql's 86) via fuzzy vendor-name matching, flags 5 duplicate invoices at load time, independently re-derives bank/intercompany matches rather than trusting source labels. Two real bugs found and fixed by actually running it (NaN-vs-None handling in two places) — see 06-python/README.md. exception-report.md regenerated and cross-checked against 04-data/data-quality-log.md.
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 9: Python data pipeline — 06-python/ (ingestion, validation, transformations, reconciliation, mappings) per PLAN.md §21: read → schema validation → data-quality checks → duplicate detection → entity/account mapping → currency normalisation → DB load → reconciliation → exception report, with pytest coverage under 06-python/tests/
+- Phase 10: REST API — 07-api/ (FastAPI): POST /customers, /invoices, /payments, /journal-entries; GET /trial-balance, /reconciliation-status, /close-status, /intercompany-exceptions per PLAN.md §22, with validation/error-handling/auth-concept/idempotency/logging and pytest coverage under 07-api/tests/
 
 BLOCKERS:
 - (none)
 
 KNOWN LIMITATIONS:
-- No Python pipeline or API built yet — schema/queries exist and are proven against real data, but nothing loads/validates data programmatically yet (that's Phase 9), and there's no API layer (Phase 10).
-- seed.sql's code→id mapping is plain SQL joins with no fuzzy vendor-name matching or structured exception handling — that's Phase 9's job, done properly in Python.
+- No API layer yet (Phase 10) — the pipeline and schema are proven, but nothing external can talk to this system yet.
 - controls.sql's approval threshold (10,000) is a documented placeholder assumption, not a real policy — Phase 11 formalises this.
+- 06-python/ingestion.py only covers the four tables sourced from an external file (invoices, payments, bank_transactions, intercompany_transactions); journal_entries/journal_lines are produced by accounting automation (Phase 11) or manual entry, not ingestion.
 - current-state.png / future-state.png / system-architecture.png diagrams not yet drawn — ASCII flow diagrams stand in for now.
+- NOTE ON PHASE NUMBERING: PLAN.md's own §-numbered phases (used in this STATUS block) are the authoritative sequence going forward — Phase 9=Python pipeline (§21), Phase 10=REST API (§22), Phase 11=Accounting automation (§23), Phase 12=AI assistant (§24), Phase 13=Reconciliation Engine (§26), Phase 14=Close Control Centre (§27). The early saved roadmap plan (~/.claude/plans/groovy-discovering-pinwheel.md) numbered these slightly differently (its "Step 10" was Reconciliation Engine, "Step 11" REST API) — that roadmap file is now superseded by this STATUS block where they conflict.
 
 CURRENT TECH STACK:
-- Python (pandas) for synthetic data generation (Phase 7). PostgreSQL 15 (installed and running locally) for the schema and queries (Phase 8). SQLAlchemy, Pydantic, FastAPI, Streamlit — not yet implemented.
+- Python (pandas, pydantic, sqlalchemy, psycopg2, pytest) in a project .venv. PostgreSQL 15 (installed and running locally). FastAPI, Streamlit — not yet implemented.
 
 LAST VERIFIED:
-- Tests: n/a
+- Tests: 06-python/tests — 26/26 passing (.venv/bin/pytest 06-python/tests)
 - API: n/a
-- Database: n/a
+- Database: PostgreSQL 15 local — schema, seed, all six SQL query sets, and the Python ingestion pipeline all run clean end-to-end
 - Dashboard: n/a
 ```
 
