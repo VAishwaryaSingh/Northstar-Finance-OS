@@ -20,7 +20,7 @@ def test_high_confidence_correct_case_does_not_require_review():
     client = MockLLMClient({invoice["invoice_id"]: suggestion})
 
     result = process_invoice(invoice, client, KNOWN_ACCOUNTS, KNOWN_ENTITIES,
-                              vendor_default_account_code="ACC-001", amount=500.0)
+                              vendor_default_account_code="ACC-001", amount=500.0, audit_sample_rate=0.0)
 
     assert result.requires_human_review is False
     assert result.review_reasons == []
@@ -114,7 +114,7 @@ def test_amount_below_threshold_with_everything_else_clean_does_not_require_revi
     client = MockLLMClient({invoice["invoice_id"]: suggestion})
 
     result = process_invoice(invoice, client, KNOWN_ACCOUNTS, KNOWN_ENTITIES,
-                              vendor_default_account_code="ACC-001", amount=100.0)
+                              vendor_default_account_code="ACC-001", amount=100.0, audit_sample_rate=0.0)
 
     assert result.requires_human_review is False
 
@@ -132,6 +132,61 @@ def test_override_requires_a_non_blank_reason():
 
     with pytest.raises(ValueError):
         override_recommendation(recommendation, overridden_by="USR-004", reason="   ")
+
+
+# --- The two controls added after Phase 12's evaluation surfaced a gap ---
+
+def test_amount_far_outside_vendor_history_requires_review_even_with_perfect_match():
+    invoice = make_invoice(amount=9000.0)
+    suggestion = LLMSuggestion("Medical Supplies Ltd", "ACC-001", "ENT-001", 0.99, "matches vendor default")
+    client = MockLLMClient({invoice["invoice_id"]: suggestion})
+    history = [100.0, 110.0, 95.0, 105.0, 90.0]
+
+    result = process_invoice(invoice, client, KNOWN_ACCOUNTS, KNOWN_ENTITIES,
+                              vendor_default_account_code="ACC-001", amount=9000.0,
+                              vendor_historical_amounts=history, audit_sample_rate=0.0)
+
+    assert result.requires_human_review is True
+    assert any("amount outlier" in r for r in result.review_reasons)
+
+
+def test_amount_within_vendor_history_is_not_flagged_as_outlier():
+    invoice = make_invoice(amount=102.0)
+    suggestion = LLMSuggestion("Medical Supplies Ltd", "ACC-001", "ENT-001", 0.99, "matches vendor default")
+    client = MockLLMClient({invoice["invoice_id"]: suggestion})
+    history = [100.0, 110.0, 95.0, 105.0, 90.0]
+
+    result = process_invoice(invoice, client, KNOWN_ACCOUNTS, KNOWN_ENTITIES,
+                              vendor_default_account_code="ACC-001", amount=102.0,
+                              vendor_historical_amounts=history, audit_sample_rate=0.0)
+
+    assert result.requires_human_review is False
+
+
+def test_audit_sample_rate_one_always_forces_review_even_when_everything_else_is_clean():
+    invoice = make_invoice(amount=50.0)
+    suggestion = LLMSuggestion("Medical Supplies Ltd", "ACC-001", "ENT-001", 0.99, "matches vendor default")
+    client = MockLLMClient({invoice["invoice_id"]: suggestion})
+
+    result = process_invoice(invoice, client, KNOWN_ACCOUNTS, KNOWN_ENTITIES,
+                              vendor_default_account_code="ACC-001", amount=50.0,
+                              audit_sample_rate=1.0)
+
+    assert result.requires_human_review is True
+    assert any("audit sample" in r for r in result.review_reasons)
+
+
+def test_audit_sample_rate_zero_never_adds_a_sampling_reason():
+    invoice = make_invoice(amount=50.0)
+    suggestion = LLMSuggestion("Medical Supplies Ltd", "ACC-001", "ENT-001", 0.99, "matches vendor default")
+    client = MockLLMClient({invoice["invoice_id"]: suggestion})
+
+    result = process_invoice(invoice, client, KNOWN_ACCOUNTS, KNOWN_ENTITIES,
+                              vendor_default_account_code="ACC-001", amount=50.0,
+                              audit_sample_rate=0.0)
+
+    assert result.requires_human_review is False
+    assert result.review_reasons == []
 
 
 def test_override_with_a_reason_succeeds_and_records_it():

@@ -57,6 +57,7 @@ def run_case(case: dict) -> dict:
         invoice, client, case["known_accounts"], case["known_entities"],
         vendor_default_account_code=case["vendor_default_account_code"],
         amount=invoice["amount"],
+        vendor_historical_amounts=case.get("vendor_historical_amounts"),
     )
 
     gt = case["ground_truth"]

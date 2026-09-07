@@ -15,6 +15,7 @@ between two directories that aren't even valid Python package names.
 
 from __future__ import annotations
 
+import hashlib
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Optional
@@ -103,3 +104,26 @@ def check_intercompany_counterpart(transactions: list[dict], amount_tolerance: f
                     detail=f"reference {reference!r} has mismatched amounts across sides: {amounts}",
                 ))
     return exceptions
+
+
+# Added after Phase 12's evaluation surfaced a real gap (see
+# invoice_classification.py's check_amount_outlier for the other half of
+# the response): a transaction that is a genuine anomaly matching NOTHING
+# observable -- not an amount outlier, not a hallucination, not a
+# deterministic mismatch -- cannot be caught by any per-transaction rule,
+# by definition. The only real answer to that category, and the one real
+# audit/SOX programs actually use, is periodically sampling even the
+# "clean" auto-approved population, not just the flagged one.
+DEFAULT_AUDIT_SAMPLE_RATE = 0.05  # documented assumption: 1 in 20, not a validated policy figure
+
+
+def should_sample_for_audit(transaction_id: str, sample_rate: float = DEFAULT_AUDIT_SAMPLE_RATE) -> bool:
+    """Deterministic (not random) so the same transaction_id always gets
+    the same answer -- reproducible for tests and for explaining after the
+    fact *why* a given transaction was pulled, without having to have
+    logged a coin-flip at the time. Hashes the ID into a value spread
+    uniformly over [0, 1) and compares it to sample_rate, so across many
+    transaction_ids the selected fraction converges on sample_rate."""
+    digest = hashlib.sha256(transaction_id.encode()).hexdigest()
+    position = int(digest[:8], 16) / 0xFFFFFFFF
+    return position < sample_rate

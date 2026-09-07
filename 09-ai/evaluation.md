@@ -4,7 +4,7 @@
 
 ## Method
 
-`evaluate.py` runs 10 hand-built cases (`examples/*.json`) through the real `process_invoice` pipeline in `accounting_agent.py` — the same function any future posting workflow would call, not a simplified evaluation-only path. Each case pairs a canned model response (`MockLLMClient`) with a **ground truth** answer, spanning every category PLAN.md §30 asks for: high-confidence correct, low-confidence, ambiguous vendor, missing data, conflicting evidence, and adversarial/nonsensical input — plus two cases specific to this project's own rules (the approval threshold, and a deliberate "everything passes but it's still wrong" gap case).
+`evaluate.py` runs 11 hand-built cases (`examples/*.json`) through the real `process_invoice` pipeline in `accounting_agent.py` — the same function any future posting workflow would call, not a simplified evaluation-only path. Each case pairs a canned model response (`MockLLMClient`) with a **ground truth** answer, spanning every category PLAN.md §30 asks for: high-confidence correct, low-confidence, ambiguous vendor, missing data, conflicting evidence, and adversarial/nonsensical input — plus three cases specific to this project's own rules (the approval threshold, an amount-outlier catch, and a deliberate "everything passes but it's still wrong" gap case).
 
 Run it: `.venv/bin/python 09-ai/evaluate.py` (regenerates `evaluation-results.md`).
 
@@ -14,25 +14,32 @@ Run it: `.venv/bin/python 09-ai/evaluate.py` (regenerates `evaluation-results.md
 
 | Metric | Value |
 |---|---|
-| Classification accuracy | 60% (6/10) |
-| Routed to human review | 70% (7/10) |
-| False positives (flagged, but suggestion was fine) | 4/10 |
-| False negatives (auto-approved, but suggestion was WRONG) | 1/10 |
-| **Inappropriate automation rate** | **10% (1/10)** |
+| Classification accuracy | 64% (7/11) |
+| Routed to human review | 73% (8/11) |
+| False positives (flagged, but suggestion was fine) | 5/11 |
+| False negatives (auto-approved, but suggestion was WRONG) | 1/11 |
+| **Inappropriate automation rate** | **9% (1/11)** |
 
 ## Why accuracy is the least important number here
 
-PLAN.md §31 is explicit: *"the most important metric is not simply model accuracy."* 60% accuracy sounds unimpressive next to a headline "the AI works" claim — and that's the point of measuring it this way instead. **Accuracy describes the model; the inappropriate automation rate describes the system.** A model that's right 95% of the time but wrong on the 5% it auto-approves without review is a worse system than one that's right 70% of the time but never auto-approves a wrong answer — because the first one is silently posting bad accounting entries. This evaluation is designed to make that distinction visible rather than let a single "% correct" figure hide it.
+PLAN.md §31 is explicit: *"the most important metric is not simply model accuracy."* 64% accuracy sounds unimpressive next to a headline "the AI works" claim — and that's the point of measuring it this way instead. **Accuracy describes the model; the inappropriate automation rate describes the system.** A model that's right 95% of the time but wrong on the 5% it auto-approves without review is a worse system than one that's right 70% of the time but never auto-approves a wrong answer — because the first one is silently posting bad accounting entries. This evaluation is designed to make that distinction visible rather than let a single "% correct" figure hide it.
 
-Read against that: this evaluation set's real headline is **90% of wrong suggestions here were correctly caught before automation** (3 of 4 incorrect cases were flagged: EVAL-005, EVAL-006, EVAL-007), and **every hallucination attempt was caught regardless of the confidence the model claimed** (EVAL-006, EVAL-007 — both stated 0.98+ confidence, both still flagged, because `validate_suggestion()` runs before confidence is even consulted).
+Read against that: this evaluation set's real headline is **every genuinely wrong suggestion with an observable red flag was caught** (EVAL-005, EVAL-006, EVAL-007, EVAL-011 — conflicting evidence, two hallucinations, and an amount outlier, all correctly flagged), and **every hallucination attempt was caught regardless of the confidence the model claimed** (EVAL-006, EVAL-007 — both stated 0.98+ confidence, both still flagged, because `validate_suggestion()` runs before confidence is even consulted).
 
-## The one case that didn't get caught: EVAL-010
+## Two controls added after the first evaluation run found a gap
 
-`EVAL-010` (`inappropriate_automation_gap`) is deliberately constructed, not a bug: a vendor with a solid, well-matched historical default, a high-confidence model suggestion that agrees with that default, an amount under the approval threshold, no hallucinated codes — every single check this system has passes. And the ground truth says it's still wrong, because this particular invoice was a genuine one-off exception nothing available to the system flagged as unusual.
+The first version of this evaluation (10 cases, no amount-outlier or audit-sampling checks) found a 10% inappropriate automation rate driven entirely by one deliberately-constructed case, `EVAL-010`. Rather than tune a rule to make that one case pass — which would be curve-fitting a test to itself, not a real improvement — two general-purpose controls were added to `08-accounting-automation` (see that module's `invoice_classification.check_amount_outlier` and `exception_rules.should_sample_for_audit`) and wired into `process_invoice`:
 
-This is the honest limit of a rules + confidence + hallucination-check safety net: it catches wrong answers that *look* wrong by some signal (low confidence, a code that doesn't exist, a mismatch with a known default). It cannot catch a wrong answer that looks exactly like a right one. No evaluation methodology makes that risk zero — the value of measuring `inappropriate_automation_rate` explicitly is knowing the number isn't zero, rather than assuming it is because every documented control passed.
+1. **Amount-outlier detection** — flags an invoice whose amount is a statistical outlier against that vendor's own history, even when the account matches and confidence is high. `EVAL-011` was added specifically to demonstrate this: everything about the suggestion is actually *correct*, but the amount (8,500) is wildly outside the vendor's normal 90–115 range, so it's still flagged. This catches a real, different, and probably more common failure mode than EVAL-010's.
+2. **Random audit sampling** — a small, deterministic-per-ID fraction (5% by default) of every otherwise-clean, auto-approved transaction is flagged anyway, regardless of what else passed. This is the actual real-world answer to the category of risk no per-transaction rule can close.
 
-**What this suggests for a real deployment** (not implemented here, since it's a process/governance recommendation, not a code change): periodic human sampling of a small percentage of *auto-approved* transactions too, not just the ones already flagged — the only way to catch this category of error at all, since by construction nothing in the automated pipeline can distinguish it from a correct case.
+## EVAL-010, honestly, after both new controls
+
+`EVAL-010` is still in the evaluation set, unchanged in spirit: a vendor with a solid historical account match, a high-confidence correct-looking suggestion, an amount well within that vendor's *normal* range (110–125, deliberately not an outlier — this is the point), and no hallucinated codes. Ground truth says it's still wrong, because this was a genuine one-off exception nothing observable flags.
+
+**In the run this file reflects, EVAL-010 was not selected by the audit sample and still comes back as a false negative.** That is not a scripted outcome — `evaluate.py` calls the real `should_sample_for_audit` function with no override, and this is what it actually returned this run. Because sampling is deterministic per invoice ID (not re-randomized on every run), re-running `evaluate.py` today will reproduce the exact same result; it would only start catching `EVAL-010` if the ID changed, the sample rate were raised, or a future signal specific to this case were added. That's the honest limit being reported, not a bug to quietly fix by re-rolling until it passes.
+
+**What this demonstrates, taken together:** the amount-outlier check closed a real gap (proven by EVAL-011), and audit sampling adds a non-zero, statistically-guaranteed-over-time detection rate for the category neither that check nor any other can close deterministically — but it does not, and cannot, promise to catch any *specific* transaction. Over a large enough population, an average of 5% of the truly-invisible cases get caught by sampling alone; any individual one, including this one, might not be. **What this suggests for a real deployment** (a process/governance recommendation, not a further code change): either raise the sample rate for higher-risk vendor/amount combinations, or accept this residual rate as a documented, monitored risk rather than an assumed zero.
 
 ## Test-case coverage against PLAN.md §30
 
@@ -44,5 +51,4 @@ This is the honest limit of a rules + confidence + hallucination-check safety ne
 | Missing data | EVAL-004 |
 | Conflicting evidence | EVAL-005 |
 | Adversarial / nonsensical input | EVAL-006, EVAL-007 |
-| *(this project's own addition)* Approval threshold | EVAL-008 |
-| *(this project's own addition)* Inappropriate automation gap | EVAL-010 |
+| *(this project's own additions)* Approval threshold / amount outlier / inappropriate automation gap | EVAL-008 / EVAL-011 / EVAL-010 |

@@ -27,8 +27,9 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "08-accounting-automation"))
 
-from invoice_classification import classify_vendor_account  # noqa: E402
+from invoice_classification import check_amount_outlier, classify_vendor_account  # noqa: E402
 from journal_workflow import APPROVAL_THRESHOLD, approval_requirement  # noqa: E402
+from exception_rules import DEFAULT_AUDIT_SAMPLE_RATE, should_sample_for_audit  # noqa: E402
 
 from llm_client import LLMClient, LLMSuggestion  # noqa: E402
 
@@ -90,6 +91,8 @@ def process_invoice(
     vendor_default_account_code: Optional[str] = None,
     amount: Optional[float] = None,
     approval_threshold: float = APPROVAL_THRESHOLD,
+    vendor_historical_amounts: Optional[list[float]] = None,
+    audit_sample_rate: float = DEFAULT_AUDIT_SAMPLE_RATE,
 ) -> AIRecommendation:
     """Runs one invoice through the full pipeline, ending in a
     recommendation that has already had every PLAN.md §25 control check
@@ -125,6 +128,27 @@ def process_invoice(
         requirement = approval_requirement(amount, approval_threshold)
         if requirement.requires_approval:
             review_reasons.append(f"transaction requirement: {requirement.reason}")
+
+    # 5. Amount-outlier check -- catches a vendor's invoice being far
+    #    outside their own historical range, even when the account matches
+    #    and confidence is high. Added after evaluation surfaced that
+    #    checks 1-4 alone can all pass on a transaction that's still wrong
+    #    (see evaluation.md's EVAL-010 discussion) -- this closes part of
+    #    that gap, not all of it.
+    if amount is not None:
+        outlier_issue = check_amount_outlier(amount, vendor_historical_amounts)
+        if outlier_issue:
+            review_reasons.append(f"amount outlier: {outlier_issue}")
+
+    # 6. Audit sampling -- the honest answer to the part of the gap check 5
+    #    still can't close: a transaction that is a genuine anomaly but
+    #    matches nothing else on file. No per-transaction rule can catch
+    #    that with certainty, so a fraction of the otherwise-clean
+    #    population is sampled for review regardless of what else passed.
+    #    This does not guarantee catching any *specific* transaction --
+    #    only that the auto-approved population isn't 100% unreviewed.
+    if should_sample_for_audit(invoice["invoice_id"], audit_sample_rate):
+        review_reasons.append(f"selected for random audit sample (rate={audit_sample_rate})")
 
     return AIRecommendation(
         invoice_id=invoice["invoice_id"],

@@ -1,4 +1,9 @@
-from exception_rules import check_duplicate_invoices, check_intercompany_counterpart, check_required_fields
+from exception_rules import (
+    check_duplicate_invoices,
+    check_intercompany_counterpart,
+    check_required_fields,
+    should_sample_for_audit,
+)
 
 
 def test_check_duplicate_invoices_flags_the_second_occurrence():
@@ -78,3 +83,28 @@ def test_check_intercompany_counterpart_flags_amount_mismatch():
     exceptions = check_intercompany_counterpart(transactions)
     assert len(exceptions) == 2
     assert all(e.rule == "intercompany_amount_mismatch" for e in exceptions)
+
+
+def test_should_sample_for_audit_is_deterministic_for_the_same_id():
+    result_a = should_sample_for_audit("INV-0001")
+    result_b = should_sample_for_audit("INV-0001")
+    assert result_a == result_b
+
+
+def test_should_sample_for_audit_converges_on_the_sample_rate():
+    # Over many distinct IDs, the selected fraction should land close to
+    # the configured rate -- this is the whole point of hashing into a
+    # uniform [0, 1) spread rather than e.g. hashing length or a prefix.
+    sample_rate = 0.05
+    ids = [f"INV-{i:05d}" for i in range(20_000)]
+    selected = sum(should_sample_for_audit(i, sample_rate) for i in ids)
+    observed_rate = selected / len(ids)
+    assert abs(observed_rate - sample_rate) < 0.01
+
+
+def test_should_sample_for_audit_rate_zero_never_selects():
+    assert should_sample_for_audit("INV-0001", sample_rate=0.0) is False
+
+
+def test_should_sample_for_audit_rate_one_always_selects():
+    assert should_sample_for_audit("INV-0001", sample_rate=1.0) is True

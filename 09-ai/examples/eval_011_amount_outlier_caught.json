@@ -1,0 +1,15 @@
+{
+  "category": "amount_outlier",
+  "invoice": {"invoice_id": "EVAL-011", "invoice_type": "AP", "amount": 8500.0, "currency": "GBP"},
+  "vendor_default_account_code": "ACC-001",
+  "vendor_historical_amounts": [110.0, 95.0, 105.0, 100.0, 90.0, 115.0],
+  "known_accounts": ["ACC-001", "ACC-002"],
+  "known_entities": ["ENT-001", "ENT-002"],
+  "mock_response": {
+    "vendor_identified": "Medical Supplies Ltd", "suggested_account_code": "ACC-001",
+    "suggested_entity_code": "ENT-001", "confidence": 0.99,
+    "reasoning": "Matches this vendor's default account exactly."
+  },
+  "ground_truth": {"correct_account_code": "ACC-001", "correct_entity_code": "ENT-001"},
+  "note": "Added alongside the amount-outlier check (accounting_agent.py / invoice_classification.check_amount_outlier). Everything about this suggestion is actually CORRECT per ground truth -- the account matches, confidence is high, no hallucination -- but the amount (8500) is wildly outside this vendor's normal 90-115 range, so it's still flagged for review. Demonstrates the new check catching a real, different failure mode than EVAL-010's: a vendor whose account is right but whose amount is a genuine anomaly, which is arguably the more common real-world case (a compromised or erroneous invoice reusing a known vendor's identity)."
+}

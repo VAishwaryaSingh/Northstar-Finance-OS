@@ -24,6 +24,7 @@ accounting controls; AI should assist with ambiguous classification only."
 
 from __future__ import annotations
 
+import statistics
 from dataclasses import dataclass
 from typing import Optional
 
@@ -82,3 +83,46 @@ def requires_fx_conversion(transaction_currency: str, entity_functional_currency
     entity's own books (R08) -- see 06-python/transformations.py for the
     actual conversion, this only flags that it's needed."""
     return transaction_currency != entity_functional_currency
+
+
+# Added after Phase 12's evaluation surfaced a real gap: a transaction that
+# matches a vendor's usual account, has a confident (real, non-hallucinated)
+# suggestion, and sits under the approval threshold passes every check above
+# even when it's an amount a human would immediately notice as unusual for
+# that vendor. This doesn't close that gap -- no per-transaction rule can,
+# for a transaction that's a genuine anomaly matching nothing else on file --
+# but it catches a real, different, and probably more common failure mode:
+# a vendor's invoice being far outside their own historical range.
+MIN_HISTORY_FOR_OUTLIER_CHECK = 3  # fewer points than this and a stdev isn't meaningful
+OUTLIER_TOLERANCE_STDEVS = 3.0  # documented assumption, not a tuned/validated figure
+
+
+def check_amount_outlier(
+    amount: float,
+    vendor_historical_amounts: Optional[list[float]],
+    tolerance_stdevs: float = OUTLIER_TOLERANCE_STDEVS,
+) -> Optional[str]:
+    """Flags an invoice amount that's a statistical outlier against this
+    vendor's own invoice history. Returns an exception string, or None if
+    the amount looks normal (or there isn't enough history to judge --
+    same "nothing to check against" stance as classify_vendor_account's
+    vendor_default_account_id=None case, not a pass in disguise)."""
+    if not vendor_historical_amounts or len(vendor_historical_amounts) < MIN_HISTORY_FOR_OUTLIER_CHECK:
+        return None
+
+    mean = statistics.mean(vendor_historical_amounts)
+    stdev = statistics.pstdev(vendor_historical_amounts)
+    if stdev == 0:
+        # every past invoice was exactly the same amount -- any deviation at all is notable
+        if amount != mean:
+            return f"amount {amount} differs from this vendor's constant historical amount of {mean}"
+        return None
+
+    deviation = abs(amount - mean) / stdev
+    if deviation > tolerance_stdevs:
+        return (
+            f"amount {amount} is {deviation:.1f} standard deviations from this vendor's "
+            f"historical average of {mean:.2f} (range seen: {min(vendor_historical_amounts):.2f}"
+            f"-{max(vendor_historical_amounts):.2f})"
+        )
+    return None

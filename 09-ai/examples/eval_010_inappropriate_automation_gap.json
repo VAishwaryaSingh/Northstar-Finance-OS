@@ -2,6 +2,7 @@
   "category": "inappropriate_automation_gap",
   "invoice": {"invoice_id": "EVAL-010", "invoice_type": "AP", "amount": 120.0, "currency": "GBP"},
   "vendor_default_account_code": "ACC-001",
+  "vendor_historical_amounts": [115.0, 125.0, 118.0, 122.0, 119.0],
   "known_accounts": ["ACC-001", "ACC-002"],
   "known_entities": ["ENT-001", "ENT-002"],
   "mock_response": {
@@ -10,5 +11,5 @@
     "reasoning": "Matches this vendor's default account exactly."
   },
   "ground_truth": {"correct_account_code": "ACC-002", "correct_entity_code": "ENT-001"},
-  "note": "Deliberately constructed gap case: this specific invoice from an otherwise-reliable vendor was actually a genuine one-off exception (e.g. a different type of purchase from the same supplier) that needed a different account. Nothing available to the system -- not the vendor's default, not the model's confidence -- signals that anything is unusual, so every check passes and the entry auto-approves. It is, in fact, wrong. This is what evaluation.md's inappropriate_automation_rate metric exists to surface: the residual risk that remains even after every documented control passes."
+  "note": "Deliberately constructed gap case, kept even after the amount-outlier and audit-sampling controls were added (see accounting_agent.py): this specific invoice from an otherwise-reliable vendor was actually a genuine one-off exception (e.g. a different type of purchase from the same supplier) that needed a different account. Its amount (120.0) is well within this vendor's normal historical range on purpose -- so the outlier check correctly does NOT flag it, because nothing about the amount actually is unusual. Only the account is wrong, and nothing observable signals that. Whether this case gets caught now depends entirely on whether it happens to be selected by the random audit sample (evaluate.py uses the real should_sample_for_audit function, not a scripted outcome) -- see evaluation.md for what the last run actually found, reported honestly either way."
 }

@@ -1,4 +1,9 @@
-from invoice_classification import classify_vendor_account, requires_fx_conversion, validate_entity_ledger
+from invoice_classification import (
+    check_amount_outlier,
+    classify_vendor_account,
+    requires_fx_conversion,
+    validate_entity_ledger,
+)
 
 
 def test_matching_account_is_confirmed_no_exception():
@@ -44,3 +49,41 @@ def test_requires_fx_conversion_true_when_currencies_differ():
 
 def test_requires_fx_conversion_false_when_currencies_match():
     assert requires_fx_conversion("GBP", "GBP") is False
+
+
+def test_check_amount_outlier_flags_amount_far_outside_history():
+    history = [100.0, 110.0, 95.0, 105.0, 90.0]
+    result = check_amount_outlier(5000.0, history)
+    assert result is not None
+    assert "standard deviations" in result
+
+
+def test_check_amount_outlier_passes_amount_within_normal_range():
+    history = [100.0, 110.0, 95.0, 105.0, 90.0]
+    result = check_amount_outlier(102.0, history)
+    assert result is None
+
+
+def test_check_amount_outlier_skips_when_history_too_short():
+    # Fewer than MIN_HISTORY_FOR_OUTLIER_CHECK points -- not enough to
+    # judge, so this is a "nothing to check against" pass, not a false pass.
+    result = check_amount_outlier(5000.0, [100.0, 100.0])
+    assert result is None
+
+
+def test_check_amount_outlier_skips_when_no_history_at_all():
+    assert check_amount_outlier(5000.0, None) is None
+    assert check_amount_outlier(5000.0, []) is None
+
+
+def test_check_amount_outlier_flags_any_deviation_from_a_constant_history():
+    # every past invoice was exactly the same amount (stdev == 0) -- the
+    # normal z-score formula would divide by zero, handled as a special case
+    result = check_amount_outlier(150.0, [100.0, 100.0, 100.0])
+    assert result is not None
+    assert "constant historical amount" in result
+
+
+def test_check_amount_outlier_does_not_flag_the_constant_amount_itself():
+    result = check_amount_outlier(100.0, [100.0, 100.0, 100.0])
+    assert result is None

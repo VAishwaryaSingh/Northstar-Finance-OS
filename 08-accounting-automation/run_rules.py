@@ -14,7 +14,12 @@ from sqlalchemy import text
 
 from db import get_engine
 from exception_rules import Exception_, check_duplicate_invoices, check_intercompany_counterpart, check_required_fields
-from invoice_classification import classify_vendor_account, requires_fx_conversion, validate_entity_ledger
+from invoice_classification import (
+    check_amount_outlier,
+    classify_vendor_account,
+    requires_fx_conversion,
+    validate_entity_ledger,
+)
 from journal_workflow import determine_journal_status
 
 REPORT_PATH = Path(__file__).resolve().parent / "rule-findings.md"
@@ -95,6 +100,23 @@ def run() -> None:
                 detail=f"transaction currency {row['currency']} differs from receiving entity's "
                        f"functional currency {row['to_entity_currency']}",
             ))
+
+    # --- invoice_classification.check_amount_outlier -------------------------
+    # Leave-one-out per vendor: each AP invoice's "history" is every other
+    # AP invoice from the same vendor. Added after Phase 12's evaluation
+    # (09-ai/evaluation.md) found a gap this rule is meant to help close --
+    # this is that rule proven against real data, not just hand-built cases.
+    ap_by_vendor: dict[str, list[tuple[str, float]]] = {}
+    for inv in invoices:
+        if inv["invoice_type"] == "AP" and inv["vendor_id"]:
+            ap_by_vendor.setdefault(inv["vendor_id"], []).append((inv["invoice_id"], float(inv["amount"])))
+
+    for vendor_id, vendor_invoices in ap_by_vendor.items():
+        for i, (invoice_id, amount) in enumerate(vendor_invoices):
+            history = [a for j, (_, a) in enumerate(vendor_invoices) if j != i]
+            outlier_issue = check_amount_outlier(amount, history)
+            if outlier_issue:
+                findings.append(Exception_(rule="amount_outlier", id=invoice_id, detail=outlier_issue))
 
     # --- journal_workflow.py -------------------------------------------------
     workflow_mismatches = 0
