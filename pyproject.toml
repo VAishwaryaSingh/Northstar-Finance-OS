@@ -5,4 +5,4 @@ description = "End-to-end finance transformation / AI-native ERP portfolio POC f
 requires-python = ">=3.11"
 
 [tool.pytest.ini_options]
-testpaths = ["06-python/tests", "07-api/tests", "08-accounting-automation/tests", "09-ai/tests"]
+testpaths = ["06-python/tests", "07-api/tests", "08-accounting-automation/tests", "09-ai/tests", "10-dashboard/tests"]

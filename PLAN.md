@@ -1,7 +1,7 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 13 complete (Milestone 8 — Productisation, started) — starting Phase 14 (Close Control Centre dashboard)
+STATUS: Phase 14 complete (Milestone 8 — Productisation, in progress) — starting Implementation & Migration plans
 LAST UPDATED: 2026-09-07
 
 COMPLETED:
@@ -22,12 +22,13 @@ COMPLETED:
 - Phase 12 follow-up (user-requested): asked "can we add a check for this and fix it" re: EVAL-010. Answered honestly first (no per-transaction rule can close a gap for a transaction indistinguishable from normal on every observable signal), then added two general, non-curve-fitted controls to 08-accounting-automation: invoice_classification.check_amount_outlier (flags a vendor's invoice amount as a statistical outlier against their own history) and exception_rules.should_sample_for_audit (deterministic-per-ID random sampling of even fully-clean auto-approved transactions, the real industry answer to the residual category no rule can close). Wired into 09-ai's process_invoice as steps 5-6. New EVAL-011 case proves check_amount_outlier catches a real, different failure mode; EVAL-010 was re-run honestly afterward and was NOT caught this run (not selected by the 5% audit sample) -- reported as-is in evaluation.md, not re-rolled to force a pass. check_amount_outlier additionally run against the real database via run_rules.py (leave-one-out per AP vendor): found 7 real outliers among 49 AP invoices, with an honest caveat that this dataset's uniformly-random synthetic amounts and small per-vendor sample sizes inflate that rate versus a realistic deployment. 14 new tests added (10 in 08-accounting-automation, 4 in 09-ai). Full project suite = 104/104 passing.
 
 - Phase 13 (Reconciliation Engine): 06-python/reconciliation_engine.py per PLAN.md §26 — extends Phase 9's binary matched/unmatched with the four-tier output §26 asks for (matched/probable_match/unmatched + exception reason) across Bank (amount/date/counterparty), AP (invoice/payment/vendor/amount — deliberately independent of the payments.invoice_id FK, to prove matching capability and cross-check that FK's own accuracy), and Intercompany (extends Phase 9's reference+amount matching with entity-pair and period). 14 new pytest tests. run_reconciliation.py proves it against the real database (reconciliation-engine-results.md): Bank (68 matched/0 probable/10 unmatched) and Intercompany (36/0/12) land exactly on Phase 9's known counts; AP's one probable_match is a genuine, traced finding — INV-0059 independently matches PAY-0071, but PAY-0071's own invoice_id says INV-0086, because PAY-0071 is one half of the exact duplicate-payment pair Phase 7 planted for INV-0086 (04-data/data-quality-log.md) — a real downstream consequence of that plant no earlier phase's checks (which look for duplicates directly, not their knock-on effects) had surfaced. Full project suite = 118/118 passing.
+- Phase 14 (Close Control Centre dashboard): 10-dashboard/{data,app,db}.py per PLAN.md §27 — all nine metrics it asks for (close progress, outstanding reconciliations, unreconciled cash, unapproved journals, intercompany exceptions, overdue AP, manual journal %, AI recommendations awaiting review, data-quality exceptions), each a plain Streamlit-free function in data.py so every metric is independently runnable/testable (the "reproducible data and queries" requirement). Two metrics (AI-awaiting-review, data-quality exceptions) call live into 08-accounting-automation's actual rule functions rather than reimplementing them a third time. 10 pytest tests against the real database, including a regression test for a real bug found while building this: the first version of get_data_quality_exceptions queried invoices without selecting invoice_date/currency/amount, producing 264 false "missing field" positives out of 281 total findings — caught by running it, fixed, permanently regression-tested. app.py verified via Streamlit's own headless AppTest framework (actually executes the script server-side, not just a static-shell check): zero exceptions, all 5 KPI cards and 8 tables render correctly against real data. Full project suite = 128/128 passing.
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 14: Close Control Centre dashboard — 10-dashboard/ per PLAN.md §27: a CFO/Controller-facing view (Streamlit, already in requirements.txt) showing close progress, unreconciled cash, unapproved journals, IC exceptions, overdue AP, and AI recommendations pending review — drawing on the real outputs already built (05-sql query sets, rule-findings.md, reconciliation-engine-results.md, evaluation-results.md) rather than recomputing them.
+- Implementation & Migration plans (PLAN.md §28-29) → 12-implementation/: implementation-plan.md (Phase 0-8 rollout structure), migration-plan.md (inventory/mapping/cleansing/validation/cutover), rollout-plan.md, risks.md, training-plan.md. Last item in Milestone 8 before Milestone 9 (Portfolio: demo, case study).
 
 BLOCKERS:
 - (none)
@@ -37,17 +38,18 @@ KNOWN LIMITATIONS:
 - 09-ai's audit log (OverrideRecord) isn't wired into schema.sql's audit_logs table yet, and neither 08-accounting-automation's, 09-ai's, nor 06-python/reconciliation_engine.py's rules are wired into 07-api yet. Natural next integration steps, deliberately not done to keep each phase reviewable on its own (see each phase's controls.md/README.md).
 - The 10,000 approval threshold (08-accounting-automation/journal_workflow.py, reused by 09-ai) is still a documented assumption, not a real Northstar Health Group policy.
 - 07-api's authentication is a single shared key, not per-user identity/roles — matches security-model.md's stated scope for this portfolio project. No pagination on GET endpoints. POST /invoices and /payments expect a vendor_code/customer_code that already exists (no fuzzy matching at the API layer — that's 06-python's job for messy source files, not an API caller's).
+- 10-dashboard has no caching/auto-refresh (every load re-runs every query/rule live — fine at this data volume) and no dashboard-level authentication (matches this project's stated portfolio-POC security scope).
 - current-state.png / future-state.png / system-architecture.png diagrams not yet drawn — ASCII flow diagrams stand in for now.
-- NOTE ON PHASE NUMBERING: PLAN.md's own §-numbered phases (used in this STATUS block) are the authoritative sequence, and PLAN.md's §49 Milestone Checklist is the authoritative way to answer "how many phases/milestones are left" — 7 of 9 milestones done as of Phase 12; Phase 13 above is part of Milestone 8. Do not use the early saved roadmap plan's (~/.claude/plans/groovy-discovering-pinwheel.md) flat "Step 0-18" numbering for progress counts — it's superseded and was a source of confusion earlier in this project (see conversation history around Phase 12/13).
+- NOTE ON PHASE NUMBERING: PLAN.md's own §-numbered phases (used in this STATUS block) are the authoritative sequence, and PLAN.md's §49 Milestone Checklist is the authoritative way to answer "how many phases/milestones are left" — 7 of 9 milestones done as of Phase 12; Phases 13-14 above, plus the Implementation/Migration plans next, are all part of Milestone 8. Do not use the early saved roadmap plan's (~/.claude/plans/groovy-discovering-pinwheel.md) flat "Step 0-18" numbering for progress counts — it's superseded and was a source of confusion earlier in this project.
 
 CURRENT TECH STACK:
-- Python (pandas, pydantic, sqlalchemy, psycopg2, pytest, fastapi, uvicorn, httpx, anthropic) in a project .venv. PostgreSQL 15 (installed and running locally). Streamlit — listed in requirements.txt, not yet implemented (Phase 14). anthropic SDK installed and integration code written (09-ai/llm_client.py), but no API key configured and no live call made.
+- Python (pandas, pydantic, sqlalchemy, psycopg2, pytest, fastapi, uvicorn, httpx, anthropic, streamlit) in a project .venv. PostgreSQL 15 (installed and running locally). anthropic SDK installed and integration code written (09-ai/llm_client.py), but no API key configured and no live call made.
 
 LAST VERIFIED:
-- Tests: 06-python/tests + 07-api/tests + 08-accounting-automation/tests + 09-ai/tests — 118/118 passing (.venv/bin/pytest, using pyproject.toml's testpaths)
+- Tests: 06-python/tests + 07-api/tests + 08-accounting-automation/tests + 09-ai/tests + 10-dashboard/tests — 128/128 passing (.venv/bin/pytest, using pyproject.toml's testpaths)
 - API: 07-api/main.py — manually smoke-tested live (uvicorn + curl) and covered by 27 automated tests against the real database
-- Database: PostgreSQL 15 local — schema, seed, all six SQL query sets, the Python ingestion pipeline, the REST API, and the accounting-automation rules all run clean end-to-end
-- Dashboard: n/a
+- Database: PostgreSQL 15 local — schema, seed, all six SQL query sets, the Python ingestion pipeline, the REST API, the accounting-automation rules, the reconciliation engine, and the dashboard all run clean end-to-end
+- Dashboard: 10-dashboard/app.py — verified via Streamlit's headless AppTest framework (real script execution, not a shell check), zero exceptions, all elements render against real data
 ```
 
 ## 0. PROJECT PURPOSE
