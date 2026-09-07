@@ -1,7 +1,7 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Phase 10 complete (Milestone 5 — Integration, REST API) — starting Phase 11 (Accounting automation)
+STATUS: Phase 11 complete (Milestone 6 — Accounting automation) — starting Phase 12 (AI accounting assistant)
 LAST UPDATED: 2026-09-07
 
 COMPLETED:
@@ -17,30 +17,31 @@ COMPLETED:
 - Phase 8 (SQL): PostgreSQL 15 installed and running locally; 05-sql/schema.sql (all 14 tables, debit=credit enforced via a deferred trigger, maker≠checker enforced via a CHECK + trigger — both proven by deliberately trying to break them), seed.sql (loads 04-data/*.csv, 86/92 invoices load cleanly, 6 excluded exactly matching the planted missing-entity-code/unmapped-vendor issues), and ap.sql/reconciliation.sql/intercompany.sql/close_analysis.sql/reporting.sql/controls.sql (PLAN.md §20's six query categories). Full pipeline (drop db → schema → seed → all six query files) re-run clean from scratch with zero errors before commit.
 - Phase 9 (Python data pipeline): .venv set up with pandas/pydantic/sqlalchemy/psycopg2/pytest; 06-python/{db,mappings,validation,transformations,reconciliation,ingestion}.py implementing PLAN.md §21's full pipeline (read → schema validation → data-quality checks → duplicate detection → entity/account mapping → currency normalisation → DB load → reconciliation → exception report) for invoices/payments/bank_transactions/intercompany_transactions. 26 pytest tests (mapping, currency conversion, duplicate detection, reconciliation — the four AGENTS.md calls out) all passing. Run against the real database: recovers 88/92 invoices (vs seed.sql's 86) via fuzzy vendor-name matching, flags 5 duplicate invoices at load time, independently re-derives bank/intercompany matches rather than trusting source labels. Two real bugs found and fixed by actually running it (NaN-vs-None handling in two places) — see 06-python/README.md. exception-report.md regenerated and cross-checked against 04-data/data-quality-log.md.
 - Phase 10 (REST API): 07-api/ (FastAPI) — main.py, config.py, auth.py, errors.py, db.py, models.py (SQLAlchemy Core data-access layer), schemas.py (Pydantic request/response models), routes/{customers,invoices,payments,journal_entries,reporting}.py. Implements POST /customers, /invoices, /payments, /journal-entries and GET /trial-balance, /reconciliation-status, /close-status, /intercompany-exceptions per PLAN.md §22. Demonstrates all six things §22 asks for: request validation, response schemas, structured errors with real HTTP status codes (404/400/422), a basic X-API-Key auth concept, idempotent invoice creation (replay-safe on entity_code+invoice_number+invoice_type, flags a same-number/different-amount replay as duplicate_flagged rather than silently posting it), and request logging. Balance/maker≠checker validated client-side (422, schemas.py) *and* by schema.sql's trigger/constraint (400, IntegrityError handler) as the real source of truth. Manually smoke-tested live via curl (auth rejection, validation errors, idempotency replay, unbalanced/self-approved journal rejection, filtered GET queries) before writing the automated suite; 27 pytest tests via FastAPI's TestClient against the real database, each using a disposable per-test entity_code so nothing touches the seeded dataset. Full suite (06-python + 07-api) = 53/53 passing.
+- Phase 11 (Accounting automation): 08-accounting-automation/{invoice_classification,exception_rules,journal_workflow}.py per PLAN.md §23 — vendor→account mapping (flag, don't silently correct, a mismatch), entity→ledger validation, currency→FX requirement, duplicate invoice/missing-required-field/intercompany-counterpart exceptions, and the amount→approval-threshold rule (10,000, documented assumption, formalises 05-sql/controls.sql's placeholder) driving determine_journal_status. 24 pytest tests, all pure-function/no-DB. run_rules.py proves every rule against the real database (rule-findings.md): 5 duplicate invoices and 4 incorrect account mappings (both matching known counts, with the same "excluded earlier for a different reason" edge case documented in 06-python/README.md), 12 unmatched intercompany transactions, and — a genuinely new finding, not just a re-check — 19 intercompany transactions crossing a currency boundary given the one-USD/two-GBP entity mix. controls.md documents the critical rules-before-AI distinction this phase exists to protect going into Phase 12. Full suite (06-python + 07-api + 08-accounting-automation) = 77/77 passing.
 
 IN PROGRESS:
 - (none)
 
 NEXT:
-- Phase 11: Accounting automation — 08-accounting-automation/ per PLAN.md §23: deterministic rules for vendor→account mapping, entity→ledger mapping, currency→FX requirement, invoice amount→approval threshold, duplicate invoice→exception, missing tax field→exception, intercompany transaction→counterpart validation. Critical distinction to hold going into Phase 12: rules handle deterministic accounting controls, AI (Phase 12) only assists ambiguous classification/explanation/exception handling.
+- Phase 12: AI accounting assistant — 09-ai/accounting_agent.py per PLAN.md §24: extract → identify vendor → suggest entity/account/tax → confidence → evidence → control checks (must call into 08-accounting-automation's rules, never bypass them) → human approval → post. Implement the AI safety policy from PLAN.md §25 (confidence threshold, human review, audit log, override + reason, no hallucinated data) and build a small evaluation set measuring accuracy, false positive/negative rate, % routed to human review, and unsafe automation rate (PLAN.md §31).
 
 BLOCKERS:
 - (none)
 
 KNOWN LIMITATIONS:
-- controls.sql's approval threshold (10,000) is a documented placeholder assumption, not a real policy — Phase 11 formalises this properly as a deterministic rule.
-- 06-python/ingestion.py only covers the four tables sourced from an external file (invoices, payments, bank_transactions, intercompany_transactions); journal_entries/journal_lines are produced by accounting automation (Phase 11) or manual entry, not ingestion.
+- The 10,000 approval threshold (now formalised in 08-accounting-automation/journal_workflow.py) is still a documented assumption, not a real Northstar Health Group policy.
+- 08-accounting-automation's rules aren't wired into 07-api yet — schemas.py validates balance/maker≠checker but doesn't call determine_journal_status or classify_vendor_account. A natural next integration step, deliberately not done in this phase (see controls.md).
 - 07-api's authentication is a single shared key, not per-user identity/roles — matches security-model.md's stated scope for this portfolio project. No pagination on GET endpoints. POST /invoices and /payments expect a vendor_code/customer_code that already exists (no fuzzy matching at the API layer — that's 06-python's job for messy source files, not an API caller's).
 - current-state.png / future-state.png / system-architecture.png diagrams not yet drawn — ASCII flow diagrams stand in for now.
 - NOTE ON PHASE NUMBERING: PLAN.md's own §-numbered phases (used in this STATUS block) are the authoritative sequence going forward — Phase 9=Python pipeline (§21), Phase 10=REST API (§22), Phase 11=Accounting automation (§23), Phase 12=AI assistant (§24), Phase 13=Reconciliation Engine (§26), Phase 14=Close Control Centre (§27). The early saved roadmap plan (~/.claude/plans/groovy-discovering-pinwheel.md) numbered these slightly differently (its "Step 10" was Reconciliation Engine, "Step 11" REST API) — that roadmap file is now superseded by this STATUS block where they conflict.
 
 CURRENT TECH STACK:
-- Python (pandas, pydantic, sqlalchemy, psycopg2, pytest, fastapi, uvicorn, httpx) in a project .venv. PostgreSQL 15 (installed and running locally). Streamlit — not yet implemented.
+- Python (pandas, pydantic, sqlalchemy, psycopg2, pytest, fastapi, uvicorn, httpx) in a project .venv. PostgreSQL 15 (installed and running locally). Streamlit — not yet implemented. No LLM/AI provider wired in yet (Phase 12).
 
 LAST VERIFIED:
-- Tests: 06-python/tests + 07-api/tests — 53/53 passing (.venv/bin/pytest 06-python/tests 07-api/tests)
+- Tests: 06-python/tests + 07-api/tests + 08-accounting-automation/tests — 77/77 passing (.venv/bin/pytest, using pyproject.toml's testpaths)
 - API: 07-api/main.py — manually smoke-tested live (uvicorn + curl) and covered by 27 automated tests against the real database
-- Database: PostgreSQL 15 local — schema, seed, all six SQL query sets, the Python ingestion pipeline, and the REST API all run clean end-to-end
+- Database: PostgreSQL 15 local — schema, seed, all six SQL query sets, the Python ingestion pipeline, the REST API, and the accounting-automation rules all run clean end-to-end
 - Dashboard: n/a
 ```
 
