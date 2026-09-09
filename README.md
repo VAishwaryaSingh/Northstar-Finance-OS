@@ -33,7 +33,7 @@ Northstar Health Group's close takes ~12 business days, ~70% of journals are man
 | AI assistant | [09-ai/](./09-ai/) | A Claude-based accounting assistant with a tested safety policy — confidence threshold, no-hallucinated-data check, mandatory-reason overrides — evaluated honestly, including a disclosed gap |
 | Dashboard | [10-dashboard/](./10-dashboard/) | A live Streamlit Close Control Centre — every metric a real query or rule against the actual database |
 | Implementation planning | [12-implementation/](./12-implementation/) | A 9-phase implementation plan, migration plan, rollout plan, risk register, training plan |
-| Solutions demo | [11-demo/](./11-demo/) | A timed 10-minute demo script, objection-handling prep, and the discovery-to-solution narrative connecting all of it |
+| Solutions demo | [11-demo/](./11-demo/) | A timed 10-minute demo script and the discovery-to-solution narrative connecting all of it |
 | Portfolio | [13-case-study/](./13-case-study/) | Case study, executive summary |
 
 **128 automated tests, all passing**, run against real (if synthetic) data throughout — not mocked.

@@ -1,8 +1,8 @@
 # Northstar Finance OS — End-to-End Accounting AI / ERP Portfolio Project
 
 ```text
-STATUS: Milestone 9 (Portfolio) nearly complete — 3 of 4 checklist items done, demo video the only deliberate exception — project is functionally complete pending GitHub push
-LAST UPDATED: 2026-09-07
+STATUS: Pushed to GitHub (public: https://github.com/VAishwaryaSingh/northstar-finance-os). Milestone 9 (Portfolio) nearly complete — 3 of 4 checklist items done, demo video the only deliberate exception — project is functionally complete
+LAST UPDATED: 2026-09-09
 
 COMPLETED:
 - Repository folder structure created (01-discovery ... 13-case-study, ADRs)
@@ -39,7 +39,7 @@ BLOCKERS:
 
 KNOWN LIMITATIONS:
 - **Demo video not produced** — this session's environment cannot record video/screen capture. 11-demo/demo-script.md and demo-flow.md are written specifically to be usable as the source for the user (or a future session with screen-recording capability) to record one.
-- **Nothing has been pushed to GitHub yet.** Original preference was build-locally-first, push later; as of 2026-09-07 the user chose to finish Milestone 9 before deciding push timing. When ready: user is new to git/GitHub, walk through it step by step (create repo on GitHub's site, connect this local repo as a remote, push) rather than just running commands.
+- **Pushed to GitHub on 2026-09-09** (public: https://github.com/VAishwaryaSingh/northstar-finance-os), via `gh` CLI walkthrough.
 - No real LLM call has been made anywhere in this project — 09-ai/llm_client.py's AnthropicLLMClient is real, correct code, but untested without an API key (the user's explicit choice for this phase). evaluation-results.md's numbers describe the safety-policy pipeline given MockLLMClient's canned responses, not real model accuracy.
 - 09-ai's audit log (OverrideRecord) isn't wired into schema.sql's audit_logs table yet, and neither 08-accounting-automation's, 09-ai's, nor 06-python/reconciliation_engine.py's rules are wired into 07-api yet. Natural next integration steps, deliberately not done to keep each phase reviewable on its own (see each phase's controls.md/README.md).
 - The 10,000 approval threshold (08-accounting-automation/journal_workflow.py, reused by 09-ai) is still a documented assumption, not a real Northstar Health Group policy.
