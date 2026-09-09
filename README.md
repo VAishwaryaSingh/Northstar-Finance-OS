@@ -6,6 +6,8 @@
 
 **Everything in this project — the client, entities, and data — is fictional.** This is a portfolio project, not production software, and was never built for or with a real company's data. See "What's fictional vs. actually implemented" below for exactly where that line sits.
 
+**🔴 Live dashboard:** [northstar-finance-os.streamlit.app](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/) — the real Close Control Centre from [10-dashboard/](./10-dashboard/), running against a live copy of the same synthetic dataset used throughout this repo. No login required.
+
 ---
 
 ## What is this?
@@ -31,7 +33,7 @@ Northstar Health Group's close takes ~12 business days, ~70% of journals are man
 | REST API | [07-api/](./07-api/) | FastAPI integration surface — customers, invoices, payments, journal entries, reporting — with idempotent posting and structured error handling |
 | Accounting automation | [08-accounting-automation/](./08-accounting-automation/) | Deterministic rules: vendor→account mapping, FX requirement, duplicate/missing-field detection, approval workflow |
 | AI assistant | [09-ai/](./09-ai/) | A Claude-based accounting assistant with a tested safety policy — confidence threshold, no-hallucinated-data check, mandatory-reason overrides — evaluated honestly, including a disclosed gap |
-| Dashboard | [10-dashboard/](./10-dashboard/) | A live Streamlit Close Control Centre — every metric a real query or rule against the actual database |
+| Dashboard | [10-dashboard/](./10-dashboard/) — [**live demo**](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/) | A live Streamlit Close Control Centre — every metric a real query or rule against the actual database |
 | Implementation planning | [12-implementation/](./12-implementation/) | A 9-phase implementation plan, migration plan, rollout plan, risk register, training plan |
 | Solutions demo | [11-demo/](./11-demo/) | A timed 10-minute demo script and the discovery-to-solution narrative connecting all of it |
 | Portfolio | [13-case-study/](./13-case-study/) | Case study, executive summary |
