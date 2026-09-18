@@ -81,6 +81,10 @@ Full setup detail lives in each phase's own `README.md` — [05-sql/README.md](.
 
 [11-demo/demo-script.md](./11-demo/demo-script.md) — a timed 10-minute walkthrough where every "show this" cue points at a real, working artifact already in this repository, not a mockup. [11-demo/discovery-demo.md](./11-demo/discovery-demo.md) has the full "you told me X → we found Y → we designed Z" narrative behind it.
 
+## Where is the evidence?
+
+[evidence/](./evidence/) — a guided path through the underlying data, the process, and the outcome, with captured run logs and a check of every planted data issue against what the system actually caught.
+
 ## What did I learn?
 
 Full discussion in [13-case-study/case-study.md](./13-case-study/case-study.md)'s Lessons section. The short version: two real bugs were found only by running code against real data, not by review alone; the highest-leverage design decision (validate once, at ingestion, not repeatedly downstream) was architectural, made before any code existed; and the most valuable AI-safety result wasn't a clean evaluation pass — it was finding, and disclosing, a specific case that passed every documented control and was still wrong.

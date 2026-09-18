@@ -1,0 +1,5 @@
+# Captured 2026-09-18 from the repo root. Synthetic data only.
+# Command:  .venv/bin/python 08-accounting-automation/run_rules.py
+# Effect:   rewrites 08-accounting-automation/rule-findings.md. On re-run the committed file was byte-identical (git status clean).
+
+wrote 08-accounting-automation/rule-findings.md (47 findings across 5 rules)

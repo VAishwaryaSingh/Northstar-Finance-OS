@@ -1,0 +1,14 @@
+# Captured 2026-09-18 from the repo root. Synthetic data only.
+# Command:  .venv/bin/pytest --no-header -q
+# Suites:   06-python (40) + 07-api (27) + 08-accounting-automation (34) + 09-ai (17) + 10-dashboard (10) = 128 collected
+# Note:     tests run against the real local PostgreSQL 'northstar' database, not mocks.
+
+........................................................................ [ 56%]
+........................................................                 [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.11/site-packages/starlette/testclient.py:53
+  .venv/lib/python3.11/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+128 passed, 1 warning in 7.81s

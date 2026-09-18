@@ -1,0 +1,8 @@
+# Captured 2026-09-18 from the repo root. Synthetic data only.
+# Command:  .venv/bin/python 06-python/run_reconciliation.py
+# Effect:   rewrites 06-python/reconciliation-engine-results.md. On re-run the committed file was byte-identical (git status clean).
+
+wrote 06-python/reconciliation-engine-results.md
+  Bank: {'matched': 68, 'probable_match': 0, 'unmatched': 10}
+  AP: {'matched': 41, 'probable_match': 1, 'unmatched': 7}
+  Intercompany: {'matched': 36, 'probable_match': 0, 'unmatched': 12}
