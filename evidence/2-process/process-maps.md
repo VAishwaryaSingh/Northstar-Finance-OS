@@ -63,8 +63,7 @@ just written:
 
 ## 5. Bugs the process itself exposed
 
-Real, unplanned bugs were found by running code against data rather than by reviewing it. [`KNOWN_ISSUES.md` §1](../../KNOWN_ISSUES.md)
-lists three with root cause and fix (the [case study](../../13-case-study/case-study.md) counts four in total). Two examples:
-blank CSV cells silently becoming `NaN` instead of `None` (and `NaN` is truthy in Python, so "is this blank?" checks let it
-through), and a dashboard metric that reported 281 findings when the real number was 17 because a query was missing columns
-the rule checks.
+Four real, unplanned bugs were found by running code against data rather than by reviewing it — full list with fixes in
+[bugs-and-detection.md](../bugs-and-detection.md). Two examples: blank CSV cells silently becoming `NaN` instead of `None`
+(and `NaN` is truthy in Python, so "is this blank?" checks let it through), and a dashboard metric that reported 281 findings
+when the real number was 17 because a query was missing columns the rule checks.

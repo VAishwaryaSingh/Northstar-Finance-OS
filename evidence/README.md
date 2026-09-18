@@ -7,6 +7,11 @@ system, and the outcome it reached** — with links straight to the working file
 > transaction are fictional, generated deterministically (seed 42). Business outcomes that a real deployment would need to
 > measure are labelled **Target**, not achieved. Counts on these pages were re-verified on 2026-09-18.
 
+## Start here — bugs and detection
+
+**[bugs-and-detection.md](./bugs-and-detection.md)** — one page: the 4 bugs found and fixed, every layer that detects
+problems and what it found, and what the system does **not** detect.
+
 ## 1. Underlying data — what the system was given
 
 | | |
