@@ -6,7 +6,7 @@ Read this and `PLAN.md` fully before making any changes. `PLAN.md` is the canoni
 
 Northstar Finance OS is a portfolio proof-of-concept demonstrating end-to-end finance-transformation and AI-native ERP capability: process discovery, requirements, target architecture, a relational data model, SQL, a Python ETL/reconciliation pipeline, a REST API, an AI-assisted accounting workflow with human-in-the-loop controls, an implementation/migration plan, and a solutions-consulting demo.
 
-It exists to show capability, not to claim experience the candidate doesn't have. See PLAN.md §1–§2 for full positioning.
+It exists to show capability, not to claim experience the candidate doesn't have.
 
 ## Fictional client
 
