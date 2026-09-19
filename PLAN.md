@@ -32,7 +32,7 @@ IN PROGRESS:
 - (none)
 
 NEXT:
-- User to decide GitHub push timing (discussed 2026-09-07 — see below) — this is the last remaining action, not a build task.
+- (none) — project complete. Pushed to GitHub 2026-09-09 (see below); live dashboard screenshot added to the README 2026-09-19.
 
 BLOCKERS:
 - (none)

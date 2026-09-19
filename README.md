@@ -6,7 +6,9 @@
 
 **Everything in this project — the client, entities, and data — is fictional.** This is a portfolio project, not production software, and was never built for or with a real company's data. See "What's fictional vs. actually implemented" below for exactly where that line sits.
 
-**🔴 Live dashboard:** [northstar-finance-os.streamlit.app](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/) — the real Close Control Centre from [10-dashboard/](./10-dashboard/), running against a live copy of the same synthetic dataset used throughout this repo. No login required.
+**🔴 Live dashboard:** [Northstar Close Control Centre](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/) — the real Close Control Centre from [10-dashboard/](./10-dashboard/), running against a live copy of the same synthetic dataset used throughout this repo. No login required.
+
+![Northstar Close Control Centre — KPI cards and close progress by entity](docs/dashboard_screenshot.png)
 
 ---
 
