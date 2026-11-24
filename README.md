@@ -8,6 +8,8 @@
 
 **🔴 Live dashboard:** [Northstar Close Control Centre](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/) — the real Close Control Centre from [10-dashboard/](./10-dashboard/), running against a live copy of the same synthetic dataset used throughout this repo. No login required.
 
+**📋 Evidence walkthrough:** [How we know it works](https://vaishwaryasingh.github.io/Northstar-Finance-OS/) — one interactive page: follow real records through the pipeline, see every planted data problem against what the system caught (and missed), the AI control test cases, and all 128 tests grouped as controls. Has a quick read and a full-detail mode.
+
 ![Northstar Close Control Centre — KPI cards and close progress by entity](docs/dashboard_screenshot.png)
 
 ---

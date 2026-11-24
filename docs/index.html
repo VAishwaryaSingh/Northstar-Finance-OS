@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northstar Evidence</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Northstar Finance OS: what was planted in the data, what the system caught, what it missed, and the tests behind it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one reading column under a sticky workpaper bar; each section is a "workpaper" (A–G) an auditor would tick through. */
+:root {
+  --paper: #f4f7f9; --surface: #ffffff; --ink: #142029; --muted: #55636f; --rule: #d6dee4;
+  --accent: #1d5c88; --accent-soft: #e1edf6; --accent-ink: #ffffff;
+  --ok: #22744a; --ok-soft: #e0f1e7; --flag: #94600a; --flag-soft: #faefd8;
+  --miss: #ad372f; --miss-soft: #f7e1df; --na: #87939d; --na-soft: #eceff2;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #0e151b; --surface: #15202a; --ink: #e5ecf1; --muted: #98a6b2; --rule: #283743;
+  --accent: #72b2e0; --accent-soft: #19324a; --accent-ink: #0b1620;
+  --ok: #5fc48c; --ok-soft: #14301f; --flag: #e2ac4c; --flag-soft: #392b0f;
+  --miss: #ef7d72; --miss-soft: #3b1b18; --na: #70808c; --na-soft: #1d2a34; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #0e151b; --surface: #15202a; --ink: #e5ecf1; --muted: #98a6b2; --rule: #283743;
+  --accent: #72b2e0; --accent-soft: #19324a; --accent-ink: #0b1620;
+  --ok: #5fc48c; --ok-soft: #14301f; --flag: #e2ac4c; --flag-soft: #392b0f;
+  --miss: #ef7d72; --miss-soft: #3b1b18; --na: #70808c; --na-soft: #1d2a34; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.6 var(--f-body); -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+code, .mono { font-family: var(--f-mono); font-size: .86em; }
+.num { font-variant-numeric: tabular-nums; }
+
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--surface); border-bottom: 1px solid var(--rule); }
+.wrap { max-width: 1000px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bar .wrap { display: flex; align-items: center; gap: 16px; padding-block: 10px; }
+.brand { font: 800 15px/1.1 var(--f-display); letter-spacing: .01em; white-space: nowrap; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--muted); font-weight: 600; }
+.nav { display: flex; gap: 2px; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 9px; border-radius: 4px; white-space: nowrap; }
+.nav a b { font: 600 11px var(--f-mono); color: var(--accent); margin-right: 5px; }
+.nav a:hover { background: var(--accent-soft); color: var(--ink); }
+.mode { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 2px; flex-shrink: 0; background: var(--paper); }
+.mode button { font: 500 13px var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 5px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.mode button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+@media (max-width: 720px) { .bar .wrap { flex-wrap: wrap; gap: 8px 12px; } .nav { order: 3; flex-basis: 100%; } .brand { flex: 1; } }
+
+body[data-mode="quick"] .deep { display: none !important; }
+
+header.hero .wrap { padding-block: 48px 36px; display: grid; gap: 22px; }
+.eyebrow { font: 600 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 800 clamp(34px, 6vw, 56px)/1.02 var(--f-display); letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+.lede { font-size: clamp(17px, 2.1vw, 20px); line-height: 1.5; max-width: 62ch; margin: 0; color: var(--ink); }
+.lede em { font-style: normal; background: linear-gradient(transparent 62%, var(--accent-soft) 62%); }
+.links { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font: 500 14px var(--f-body); padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--rule); background: var(--surface); color: var(--ink); text-decoration: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:hover { border-color: var(--accent); }
+.disclaimer { font-size: 13px; color: var(--muted); margin: 0; max-width: 70ch; }
+.modehint { font-size: 14px; color: var(--muted); margin: 0; }
+.modehint strong { color: var(--ink); }
+
+.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+.fig { background: var(--surface); padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.fig .v { font: 700 26px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.fig .v small { font: 500 15px var(--f-display); color: var(--muted); }
+.fig .l { font-size: 13px; line-height: 1.35; color: var(--muted); }
+.fig.alert .v { color: var(--miss); }
+
+section.wp { border-top: 1px solid var(--rule); }
+section.wp > .wrap { padding-block: 52px; display: grid; gap: 22px; }
+.wp-head { display: grid; gap: 10px; }
+.wp-ref { display: inline-flex; gap: 10px; align-items: baseline; font: 600 12px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.wp-ref b { color: var(--accent-ink); background: var(--accent); padding: 2px 7px; border-radius: 3px; letter-spacing: .04em; }
+h2 { font: 700 clamp(26px, 3.6vw, 34px)/1.12 var(--f-display); letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+h3 { font: 700 19px/1.25 var(--f-display); margin: 0; text-wrap: balance; }
+.intro { margin: 0; max-width: 68ch; color: var(--ink); }
+.intro.muted, .muted { color: var(--muted); }
+.src { font-size: 13px; color: var(--muted); }
+.src a { color: var(--muted); }
+
+/* status chips & tickmarks */
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1 var(--f-body); padding: 5px 9px 5px 7px; border-radius: 999px; white-space: nowrap; }
+.chip svg { width: 13px; height: 13px; flex-shrink: 0; }
+.s-ok { color: var(--ok); background: var(--ok-soft); }
+.s-flag { color: var(--flag); background: var(--flag-soft); }
+.s-miss { color: var(--miss); background: var(--miss-soft); }
+.s-na { color: var(--na); background: var(--na-soft); }
+.s-excl { color: var(--muted); background: var(--na-soft); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--muted); align-items: center; }
+
+/* premise */
+.premise { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+@media (max-width: 760px) { .premise { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 18px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.panel-title { font: 600 12px var(--f-mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13.5px; }
+.flow span.step { padding: 4px 9px; border-radius: 4px; border: 1px solid var(--rule); background: var(--paper); }
+.flow.manual span.step { border-style: dashed; }
+.flow.future span.step { border-color: var(--accent); background: var(--accent-soft); }
+.flow i { color: var(--muted); font-style: normal; }
+table.tgt { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.tgt th, table.tgt td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.tgt th { font: 600 12px var(--f-body); color: var(--muted); }
+table.tgt tr:last-child td { border-bottom: 0; }
+
+/* trace */
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.tab { flex: 0 0 auto; text-align: left; display: grid; gap: 3px; min-width: 168px; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; }
+.tab .id { font: 500 12.5px var(--f-mono); color: var(--muted); }
+.tab .t { font-weight: 600; font-size: 14.5px; line-height: 1.25; }
+.tab[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
+.tab:hover { border-color: var(--accent); }
+.trace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.rawwrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface); }
+table.raw { border-collapse: collapse; font: 13px/1.4 var(--f-mono); width: 100%; }
+table.raw th, table.raw td { padding: 7px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+table.raw th { font-weight: 500; color: var(--muted); background: var(--paper); }
+table.raw tr:last-child td { border-bottom: 0; }
+table.raw td.blank { color: var(--miss); font-style: italic; }
+table.raw td.hl { background: var(--flag-soft); }
+.stages { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.stage { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-top: 1px solid var(--rule); }
+.stage:first-child { border-top: 0; }
+.stage .who { display: grid; gap: 7px; align-content: start; }
+.stage .who b { font: 600 14px var(--f-display); letter-spacing: .01em; }
+.stage .what { min-width: 0; display: grid; gap: 6px; }
+.stage .what p { margin: 0; }
+.stage .what .deep { font-size: 14px; color: var(--muted); }
+@media (max-width: 560px) { .stage { grid-template-columns: 1fr; gap: 8px; } .stage .who { grid-auto-flow: column; justify-content: space-between; align-items: center; } }
+.verdict { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 12px; align-items: start; padding: 14px 16px; border-radius: var(--radius); border-left: 4px solid currentColor; }
+.verdict p { margin: 0; color: var(--ink); }
+.verdict .chip { background: var(--surface); }
+
+/* scorecard */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter { font: 500 13.5px var(--f-body); border: 1px solid var(--rule); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.filter[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.filter .n { font-family: var(--f-mono); opacity: .75; margin-left: 4px; }
+.score { border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.score-head, .score-row > summary { display: grid; grid-template-columns: minmax(0, 1.6fr) 64px minmax(110px, 1.2fr) 132px 18px; gap: 14px; align-items: center; padding: 11px 16px; }
+.score-head { font: 600 12px var(--f-body); color: var(--muted); background: var(--paper); border-bottom: 1px solid var(--rule); }
+.score-row { border-bottom: 1px solid var(--rule); }
+.score-row:last-child { border-bottom: 0; }
+.score-row > summary { cursor: pointer; list-style: none; }
+.score-row > summary::-webkit-details-marker { display: none; }
+.score-row > summary:hover { background: var(--paper); }
+.score-row .name { font-weight: 500; }
+.caret { width: 14px; height: 14px; color: var(--muted); transition: transform .15s; }
+details[open] > summary .caret { transform: rotate(90deg); }
+.meter { display: grid; gap: 4px; }
+.meter .track { height: 8px; border-radius: 4px; background: var(--na-soft); overflow: hidden; display: flex; }
+.meter .fill { height: 100%; }
+.meter .lbl { font: 500 12.5px var(--f-mono); color: var(--muted); }
+.score-body { padding: 4px 16px 16px; display: grid; gap: 8px; font-size: 14.5px; max-width: 80ch; }
+.score-body p { margin: 0; }
+.ids { font: 12.5px/1.7 var(--f-mono); color: var(--muted); }
+@media (max-width: 640px) {
+  .score-head { display: none; }
+  .score-row > summary { grid-template-columns: minmax(0,1fr) auto 18px; grid-template-areas: "name chip caret" "meter meter meter"; row-gap: 8px; }
+  .score-row .name { grid-area: name; } .score-row .chip { grid-area: chip; } .score-row .caret { grid-area: caret; } .score-row .meter { grid-area: meter; } .score-row .planted { display: none; }
+}
+.tally { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.tally div { padding: 12px 14px; border-radius: var(--radius); display: grid; gap: 2px; }
+.tally b { font: 700 24px/1 var(--f-display); }
+.tally span { font-size: 13px; line-height: 1.3; }
+@media (max-width: 520px) { .tally { grid-template-columns: 1fr; } }
+
+/* AI */
+.ai-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 22px; align-items: start; }
+@media (max-width: 800px) { .ai-top { grid-template-columns: 1fr; } }
+.matrix { display: grid; grid-template-columns: 92px 1fr 1fr; gap: 6px; font-size: 13px; }
+.matrix .hd { color: var(--muted); font-weight: 600; display: flex; align-items: end; padding: 0 2px 2px; line-height: 1.25; }
+.matrix .rh { color: var(--muted); font-weight: 600; display: flex; align-items: center; line-height: 1.25; }
+.cell { font: inherit; text-align: left; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface); padding: 10px 12px; cursor: pointer; display: grid; gap: 2px; color: var(--ink); }
+.cell b { font: 700 28px/1 var(--f-display); }
+.cell span { font-size: 12.5px; line-height: 1.3; color: var(--muted); }
+.cell.bad { border-color: var(--miss); background: var(--miss-soft); }
+.cell.bad b { color: var(--miss); }
+.cell[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--accent); border-color: var(--accent); }
+.bigstat { display: grid; gap: 6px; }
+.bigstat .v { font: 800 clamp(44px, 7vw, 64px)/1 var(--f-display); color: var(--miss); font-variant-numeric: tabular-nums; }
+.bigstat p { margin: 0; }
+.policy { font-size: 14px; display: grid; gap: 6px; margin: 0; padding-left: 18px; }
+.cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.case { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; align-content: start; }
+.case.fn { border-color: var(--miss); box-shadow: inset 4px 0 0 var(--miss); }
+.case-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.case-top .id { font: 500 13px var(--f-mono); color: var(--muted); }
+.case h3 { font-size: 16px; }
+.case dl { margin: 0; display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 4px 10px; font-size: 13.5px; }
+.case dt { color: var(--muted); }
+.case dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.case .why { font-size: 13px; color: var(--muted); margin: 0; }
+.clear { font: 500 13px var(--f-body); background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+
+/* controls */
+.ctrl-sum { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; }
+.suites { display: flex; flex-wrap: wrap; gap: 6px; }
+.suite { font: 500 12px var(--f-mono); padding: 3px 8px; border-radius: 4px; background: var(--surface); border: 1px solid var(--rule); color: var(--muted); }
+.controls { border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.ctrl { border-bottom: 1px solid var(--rule); }
+.ctrl:last-child { border-bottom: 0; }
+.ctrl > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 34px minmax(0,1fr) auto 18px; gap: 12px; align-items: center; padding: 12px 16px; }
+.ctrl > summary::-webkit-details-marker { display: none; }
+.ctrl > summary:hover { background: var(--paper); }
+.ctrl .tick { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--ok-soft); color: var(--ok); }
+.ctrl .tick svg { width: 15px; height: 15px; }
+.ctrl .stmt { font-weight: 500; line-height: 1.35; }
+.ctrl .cnt { font: 500 13px var(--f-mono); color: var(--muted); white-space: nowrap; }
+.ctrl-body { padding: 0 16px 14px 62px; display: grid; gap: 8px; }
+.ctrl-body p { margin: 0; font-size: 14.5px; max-width: 72ch; }
+.tests { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 14px; }
+.tests li { display: grid; grid-template-columns: 16px minmax(0,1fr); gap: 8px; }
+.tests li svg { width: 13px; height: 13px; color: var(--ok); margin-top: 5px; }
+.tests .raw { display: block; font: 12px var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+@media (max-width: 560px) { .ctrl-body { padding-left: 16px; } .ctrl > summary { grid-template-columns: 28px minmax(0,1fr) 18px; } .ctrl .cnt { grid-column: 2; grid-row: 2; } .ctrl .caret { grid-row: 1; grid-column: 3; } }
+
+/* bugs */
+.bugs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.bug { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px; display: grid; gap: 8px; align-content: start; }
+.bug .n { font: 600 12px var(--f-mono); color: var(--muted); letter-spacing: .05em; }
+.bug p { margin: 0; font-size: 14.5px; }
+.bug .guard { font-size: 13px; color: var(--muted); }
+.bug.star { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: center; }
+@media (max-width: 720px) { .bug.star { grid-template-columns: 1fr; } }
+.versus { display: flex; align-items: end; gap: 16px; }
+.versus div { display: grid; gap: 4px; justify-items: start; }
+.versus b { font: 800 46px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.versus .was b { color: var(--miss); text-decoration: line-through; text-decoration-thickness: 3px; }
+.versus .is b { color: var(--ok); }
+.versus span { font-size: 12.5px; color: var(--muted); }
+
+/* limits + dig */
+.limits { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.limits .panel p { margin: 0; font-size: 14.5px; }
+.dig { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: q; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface); }
+.dig li { counter-increment: q; display: grid; grid-template-columns: 40px minmax(0,1fr); gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--rule); }
+.dig li:last-child { border-bottom: 0; }
+.dig li::before { content: "Q" counter(q); font: 600 13px var(--f-mono); color: var(--accent); padding-top: 2px; }
+.dig p { margin: 0; }
+.dig .src { margin-top: 4px; }
+
+footer .wrap { padding-block: 32px 48px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+footer p { margin: 0; }
+</style>
+</head>
+<body data-mode="quick">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ok" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 16 16"><path d="M4 14V2.5M4 3h7.5l-1.8 2.8L11.5 8.6H4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-miss" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-na" viewBox="0 0 16 16"><path d="M4 8h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-excl" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.2 11.8l7.6-7.6" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-part" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor"/></symbol>
+  <symbol id="i-caret" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">Northstar <span>Finance OS</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#premise"><b>A</b>Premise</a>
+      <a href="#trace"><b>B</b>Trace</a>
+      <a href="#scorecard"><b>C</b>Planted vs caught</a>
+      <a href="#ai"><b>D</b>AI controls</a>
+      <a href="#controls"><b>E</b>Tests</a>
+      <a href="#bugs"><b>F</b>Bugs</a>
+      <a href="#limits"><b>G</b>Limits</a>
+    </nav>
+    <div class="mode" role="group" aria-label="Level of detail">
+      <button type="button" id="mode-quick" data-mode="quick" aria-pressed="true">Quick read</button>
+      <button type="button" id="mode-full" data-mode="full" aria-pressed="false">Full detail</button>
+    </div>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">Evidence file · Northstar Finance OS</div>
+    <h1>How we know it works</h1>
+    <p class="lede">A month-end close system for a fictional three-entity healthcare group. Problems were <em>planted in the data on purpose</em>, so every claim below can be checked against an answer key, including the ones the system misses.</p>
+    <div class="figures" aria-label="Headline results">
+      <div class="fig"><div class="v num">128<small>/128</small></div><div class="l">automated tests passing, run against a real PostgreSQL database</div></div>
+      <div class="fig"><div class="v num">6<small> of 9</small></div><div class="l">planted problem types caught in full or in part</div></div>
+      <div class="fig"><div class="v num">68<small>/78</small></div><div class="l">bank lines matched automatically; the other 10 are bank charges</div></div>
+      <div class="fig"><div class="v num">47</div><div class="l">findings from 5 accounting rules, each with a reason</div></div>
+      <div class="fig alert"><div class="v num">1<small>/11</small></div><div class="l">AI test cases wrongly auto-approved, disclosed in full</div></div>
+    </div>
+    <p class="modehint"><strong>Two minutes?</strong> Stay on Quick read and skim sections A to C. <strong>Preparing an interview?</strong> Switch to Full detail for tolerances, test names, file links and questions to push on.</p>
+    <div class="links">
+      <a class="btn primary" href="https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/" target="_blank" rel="noopener">Open the live dashboard</a>
+      <a class="btn" href="https://github.com/VAishwaryaSingh/northstar-finance-os" target="_blank" rel="noopener">Code on GitHub</a>
+      <a class="btn deep" href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/11-demo/demo-script.md" target="_blank" rel="noopener">10-minute demo script</a>
+      <a class="btn deep" href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/13-case-study/case-study.md" target="_blank" rel="noopener">Case study</a>
+    </div>
+    <p class="disclaimer">Everything here is synthetic: the client, its entities and every transaction (509 rows across 11 files, generated with a fixed seed of 42). Results marked <strong>Target</strong> were not measured. Tests last re-run 24 Nov 2026: 128 passed.</p>
+  </div>
+</header>
+
+<section class="wp" id="premise">
+  <div class="wrap">
+    <div class="wp-head">
+      <div class="wp-ref"><b>WP A</b> The premise</div>
+      <h2>Every handoff in the close was manual, so errors were found late</h2>
+      <p class="intro">Discovery with the (fictional) finance team traced every pain point to one cause: validation and matching lived in people's heads and spreadsheets instead of in the data flow. The design moves those checks to the point where data enters.</p>
+    </div>
+    <div class="premise">
+      <div class="panel">
+        <div class="panel-title">Before: where checks happened</div>
+        <div class="flow manual"><span class="step">Billing system</span><i>→</i><span class="step">CSV export</span><i>→</i><span class="step">Excel</span><i>→</i><span class="step">Legacy ERP</span><i>→</i><span class="step">Manual reconciliation</span><i>→</i><span class="step">Manual journals</span><i>→</i><span class="step">Reporting workbook</span><i>→</i><span class="step">CFO</span></div>
+        <div class="panel-title">After: what was built</div>
+        <div class="flow future"><span class="step">Source files</span><i>→</i><span class="step">Validation</span><i>→</i><span class="step">Accounting rules</span><i>→</i><span class="step">AI suggestion + human approval</span><i>→</i><span class="step">Posting</span><i>→</i><span class="step">Reconciliation</span><i>→</i><span class="step">Close Control Centre</span></div>
+        <p class="src deep">Detail: <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/evidence/2-process/process-maps.md" target="_blank" rel="noopener">evidence/2-process/process-maps.md</a> · <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/tree/main/ADRs" target="_blank" rel="noopener">architecture decisions (ADRs)</a></p>
+      </div>
+      <div class="panel">
+        <div class="panel-title">The client's numbers, and what was promised</div>
+        <div style="overflow-x:auto">
+        <table class="tgt num">
+          <thead><tr><th>Measure</th><th>Today</th><th>Goal</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Close duration</td><td>~12 days</td><td>≤ 7 days</td><td><span class="chip s-na">Target</span></td></tr>
+            <tr><td>Manual reconciliation</td><td>~80%</td><td>≤ 20%</td><td><span class="chip s-na">Target</span></td></tr>
+            <tr><td>Intercompany exceptions</td><td>~35 / month</td><td>≤ 10 / month</td><td><span class="chip s-na">Target</span></td></tr>
+            <tr><td>Manual journals</td><td>~70%</td><td>—</td><td><span class="chip s-na">Baseline only</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="src">There is no real close cycle to time, so these stay labelled Target. What <em>was</em> measured is in sections B to F.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wp" id="trace">
+  <div class="wrap">
+    <div class="wp-head">
+      <div class="wp-ref"><b>WP B</b> Walkthrough</div>
+      <h2>Follow one record through the system</h2>
+      <p class="intro">Pick a record. Each comes straight from the source files and shows what every stage did with it. Two of them go wrong on purpose.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Records to trace" id="trace-tabs"></div>
+    <div class="trace" id="trace-panel" role="tabpanel" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="wp" id="scorecard">
+  <div class="wrap">
+    <div class="wp-head">
+      <div class="wp-ref"><b>WP C</b> Planted vs caught</div>
+      <h2>65 problems were planted. Here is what the system found.</h2>
+      <p class="intro">The data generator logs every problem it injects. That log is the answer key. Each row compares it with what ingestion, the accounting rules and the reconciliation engine actually reported. Open a row for the record IDs.</p>
+    </div>
+    <div class="tally">
+      <div class="s-ok"><b>4</b><span>types caught in full</span></div>
+      <div class="s-flag"><b>2</b><span>caught except one record each, for a known reason</span></div>
+      <div class="s-miss"><b>3</b><span>no detector built yet</span></div>
+    </div>
+    <div class="filters" role="group" aria-label="Filter rows" id="score-filters"></div>
+    <div class="score" id="score">
+      <div class="score-head"><span>Planted problem</span><span>Planted</span><span>Caught</span><span>Result</span><span></span></div>
+    </div>
+    <p class="src">Source: <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/04-data/data-quality-log.md" target="_blank" rel="noopener">04-data/data-quality-log.md</a> (answer key) checked against <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/evidence/1-data/seeded-issues-vs-detected.md" target="_blank" rel="noopener">evidence/1-data/seeded-issues-vs-detected.md</a>. Re-verified 18 Sep 2026; result files came out byte-identical.</p>
+  </div>
+</section>
+
+<section class="wp" id="ai">
+  <div class="wrap">
+    <div class="wp-head">
+      <div class="wp-ref"><b>WP D</b> AI controls</div>
+      <h2>The AI suggests the account. It does not get the last word.</h2>
+      <p class="intro">An AI assistant proposes how to code each supplier invoice. A fixed policy decides whether that suggestion can go straight through or must go to a person. The policy was tested on 11 hand-built cases, including ones designed to break it.</p>
+    </div>
+    <div class="ai-top">
+      <div class="panel">
+        <div class="bigstat">
+          <div class="v">9%</div>
+          <p><strong>Inappropriate automation rate:</strong> 1 of 11 cases was approved automatically and was wrong. This is the number that matters most, more than the 64% accuracy, because it measures errors no one looks at.</p>
+        </div>
+        <div class="panel-title">A suggestion is sent to a person if any of these is true</div>
+        <ul class="policy">
+          <li>Confidence below 0.95</li>
+          <li>Account or entity code that doesn't exist</li>
+          <li>Disagrees with the supplier's usual account</li>
+          <li>Amount of £10,000 or more (approval threshold)</li>
+          <li>Amount far outside the supplier's history</li>
+          <li>Picked by a 5% random audit sample</li>
+        </ul>
+        <p class="src deep">Thresholds are documented assumptions, not validated policy. Results use a mock model, so they test the safety policy, not a real model's accuracy. <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/09-ai/controls.md" target="_blank" rel="noopener">09-ai/controls.md</a></p>
+      </div>
+      <div class="panel">
+        <div class="panel-title">All 11 cases: was the AI right, and did a person check it?</div>
+        <div class="matrix" id="matrix"></div>
+        <p class="src">Select a box to show only those cases. <button type="button" class="clear" id="matrix-clear" hidden>Show all 11</button></p>
+      </div>
+    </div>
+    <div class="cases" id="cases"></div>
+    <p class="src">Source: <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/09-ai/evaluation-results.md" target="_blank" rel="noopener">09-ai/evaluation-results.md</a> · case files in <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/tree/main/09-ai/examples" target="_blank" rel="noopener">09-ai/examples/</a></p>
+  </div>
+</section>
+
+<section class="wp" id="controls">
+  <div class="wrap">
+    <div class="wp-head">
+      <div class="wp-ref"><b>WP E</b> Tests as controls</div>
+      <h2>128 tests, read as 12 controls</h2>
+      <p class="intro">Each test checks that something an auditor would care about actually holds. Grouped by the control they prove, every one of the 128 is listed. Open a control to see its tests in plain words.</p>
+    </div>
+    <div class="ctrl-sum">
+      <span id="ctrl-check" class="chip s-ok"></span>
+      <div class="suites deep" id="suites"></div>
+    </div>
+    <div class="controls" id="ctrl-list"></div>
+    <p class="src">Run log: <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/evidence/2-process/run-logs/pytest-summary.txt" target="_blank" rel="noopener">evidence/2-process/run-logs/pytest-summary.txt</a>. The tests run against a real PostgreSQL database, not mocks. Last re-run 24 Nov 2026 with pinned dependencies: 128 passed.</p>
+  </div>
+</section>
+
+<section class="wp" id="bugs">
+  <div class="wrap">
+    <div class="wp-head">
+      <div class="wp-ref"><b>WP F</b> Bugs found</div>
+      <h2>Four real bugs, all found by running the code against data</h2>
+      <p class="intro">None of these were planted. Each surfaced because results were checked against the answer key instead of trusted.</p>
+    </div>
+    <div class="bugs" id="bug-list"></div>
+    <p class="src">Source: <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/evidence/bugs-and-detection.md" target="_blank" rel="noopener">evidence/bugs-and-detection.md</a> · <a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/KNOWN_ISSUES.md" target="_blank" rel="noopener">KNOWN_ISSUES.md</a></p>
+  </div>
+</section>
+
+<section class="wp" id="limits">
+  <div class="wrap">
+    <div class="wp-head">
+      <div class="wp-ref"><b>WP G</b> Limits</div>
+      <h2>What this evidence does not show</h2>
+    </div>
+    <div class="limits">
+      <div class="panel"><h3>Planted, not real</h3><p>"Caught" means caught against a planted answer key. It says nothing about real, unplanned errors in a live ledger.</p></div>
+      <div class="panel"><h3>Small, readable scale</h3><p>A few hundred rows over three monthly closes (June to August 2026), across three entities in GBP and USD.</p></div>
+      <div class="panel"><h3>Mock AI model</h3><p>The real-model integration is written and tested but was never run live. The 11 AI cases measure the safety policy.</p></div>
+      <div class="panel"><h3>Outlier rule is too sensitive</h3><p>It flags 7 of 49 supplier invoices (about 14%). The synthetic generator spreads amounts too evenly per supplier, which inflates this.</p></div>
+    </div>
+    <div class="wp-head deep" style="margin-top:12px">
+      <h3>Good places to push in an interview</h3>
+      <p class="intro muted">Each question points at a weak spot the project records openly, with the file that explains it.</p>
+    </div>
+    <ol class="dig deep">
+      <li><div><p>EVAL-010 passed every control and was still wrong. What would you add, and how much extra review work would it create?</p><div class="src"><a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/09-ai/evaluation.md" target="_blank" rel="noopener">09-ai/evaluation.md</a></div></div></li>
+      <li><div><p>How would you catch the INV-0004 / INV-0091 duplicate without loading rows that fail validation?</p><div class="src"><a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/KNOWN_ISSUES.md" target="_blank" rel="noopener">KNOWN_ISSUES.md §2</a></div></div></li>
+      <li><div><p>Duplicate payments, late-posted journals and unapplied cash have no detector. Which would you build first, and why?</p><div class="src"><a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/evidence/1-data/seeded-issues-vs-detected.md" target="_blank" rel="noopener">evidence/1-data/seeded-issues-vs-detected.md</a></div></div></li>
+      <li><div><p>Supplier invoices are matched to payments without using the payment's own invoice link. Why, and what does the engine do when the two disagree?</p><div class="src"><a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/06-python/reconciliation_engine.py" target="_blank" rel="noopener">06-python/reconciliation_engine.py</a></div></div></li>
+      <li><div><p>The outlier rule flags about 14% of supplier invoices. Is that the rule or the data, and how would you tune it for a real client?</p><div class="src"><a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/08-accounting-automation/controls.md" target="_blank" rel="noopener">08-accounting-automation/controls.md</a></div></div></li>
+      <li><div><p>The dashboard once reported 281 data-quality findings instead of 17. How was that noticed, and what stops it coming back?</p><div class="src"><a href="https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/evidence/bugs-and-detection.md" target="_blank" rel="noopener">evidence/bugs-and-detection.md</a></div></div></li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Northstar Finance OS is a portfolio proof of concept. Northstar Health Group, its entities, customers, suppliers and transactions are fictional and synthetic.</p>
+    <p>Every figure on this page comes from a file in the <a href="https://github.com/VAishwaryaSingh/northstar-finance-os" target="_blank" rel="noopener">repository</a>; the source is linked under each section.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const GH = "https://github.com/VAishwaryaSingh/northstar-finance-os/blob/main/";
+  const ICON = { ok: "i-ok", flag: "i-flag", miss: "i-miss", na: "i-na", excl: "i-excl", part: "i-part" };
+  const icon = (k) => `<svg aria-hidden="true"><use href="#${ICON[k]}"/></svg>`;
+  const chip = (k, label) => `<span class="chip s-${k === "part" ? "flag" : k}">${icon(k)}${label}</span>`;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  /* ---------- Mode ---------- */
+  const modeBtns = document.querySelectorAll(".mode button");
+  function setMode(m) {
+    document.body.dataset.mode = m;
+    modeBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    document.querySelectorAll("details[data-auto]").forEach((d) => { d.open = m === "full"; });
+    try { localStorage.setItem("ns-mode", m); } catch (e) {}
+  }
+  modeBtns.forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+
+  /* ---------- B: Trace ---------- */
+  const TRACES = [
+    {
+      id: "INV-0016", title: "A misspelled supplier", outcome: "ok", outcomeLabel: "Recovered",
+      cols: ["invoice_id", "type", "entity", "vendor_code", "vendor_name_raw", "date", "currency", "amount"],
+      rows: [["INV-0016", "AP", "NSS-UK", "", "Medical Supplies Limited", "2026-06-16", "GBP", "3,288.83"]],
+      hl: [4],
+      stages: [
+        ["Source file", "flag", "Planted", "The supplier code is blank and the name doesn't match the supplier master, which has \"Medical Supplies Ltd\".", "Logged in the answer key as an inconsistent supplier name."],
+        ["Ingestion", "ok", "Loaded", "A fuzzy name match resolves it to Medical Supplies Ltd, so the invoice loads.", "A plain SQL load drops it: 86 of 92 invoices load that way, 88 of 92 with fuzzy matching. Test: map vendor fuzzy name match recovers close spelling."],
+        ["Accounting rules", "ok", "No findings", "Correct account for this supplier, no duplicate, no other issue.", ""],
+        ["Reconciliation", "ok", "Matched", "Matched to payment PAY-0011.", "The AP engine finds candidates by supplier, amount and date window."],
+        ["Close Control Centre", "ok", "Nothing open", "Doesn't appear in any exception list.", ""]
+      ],
+      verdict: "Without the fuzzy match this invoice would be missing from the ledger, and nobody would know."
+    },
+    {
+      id: "INV-0046", title: "Coded to the wrong expense account", outcome: "flag", outcomeLabel: "Flagged for a person",
+      cols: ["invoice_id", "type", "entity", "vendor", "date", "due", "currency", "amount", "account"],
+      rows: [["INV-0046", "AP", "NHH-UK", "Apex Facilities Management", "2026-07-22", "2026-08-21", "GBP", "11,812.36", "5060"]],
+      hl: [8],
+      stages: [
+        ["Source file", "flag", "Planted", "Coded to account 5060. This supplier's usual account is 5010.", "Logged in the answer key as an incorrect account mapping."],
+        ["Ingestion", "ok", "Loaded", "Every field is valid, so it loads. Wrong coding isn't a data-format problem.", ""],
+        ["Accounting rules", "flag", "Flagged", "The supplier-to-account rule flags the mismatch. It does not correct it automatically.", "Rule: incorrect_account_mapping. Test: mismatched account is flagged, not silently corrected."],
+        ["Reconciliation", "flag", "Unmatched", "No payment found within the amount and date window. The invoice is still outstanding.", ""],
+        ["Close Control Centre", "flag", "Two lists", "Shown under \"AI recommendations awaiting review\" (1 of 4) and \"Overdue AP\", 17 days overdue.", "Overdue is measured at the dashboard's fixed reference date of 7 Sep 2026."]
+      ],
+      verdict: "Caught, then routed to a person to decide. The system doesn't guess which account is right."
+    },
+    {
+      id: "INV-0091", title: "The duplicate that got through", outcome: "miss", outcomeLabel: "Missed",
+      cols: ["invoice_id", "type", "invoice_number", "entity", "customer", "date", "currency", "amount"],
+      rows: [
+        ["INV-0004", "AR", "NSS-UK-AR-202606-C0004", "", "C0004", "2026-06-30", "GBP", "18,276.98"],
+        ["INV-0091", "AR", "NSS-UK-AR-202606-C0004", "NSS-UK", "C0004", "2026-06-30", "GBP", "18,276.85"]
+      ],
+      hl: [2],
+      stages: [
+        ["Source file", "flag", "Planted twice", "Two separate problems were planted on one record: INV-0091 duplicates INV-0004, and INV-0004's entity code is blank.", ""],
+        ["Ingestion", "excl", "INV-0004 held back", "INV-0004 can't be assigned to an entity, so it is reported and excluded, which is correct. INV-0091 loads.", "Exception report: Missing Entity Code (7 of 7 caught)."],
+        ["Accounting rules", "miss", "Not flagged", "The duplicate check only sees loaded invoices. INV-0091 has nothing to compare against.", "Duplicate key: entity, invoice number and invoice type."],
+        ["Reconciliation", "na", "Not covered", "Customer (AR) invoices are outside the supplier (AP) matching engine.", "Test: reconcile AP ignores AR invoices."],
+        ["Close Control Centre", "miss", "Not shown", "No duplicate warning appears.", ""]
+      ],
+      verdict: "Missed: 5 of 6 planted duplicate pairs were caught. This one is recorded in KNOWN_ISSUES, not hidden, and loading rows that fail validation was rejected as a fix."
+    },
+    {
+      id: "BANK-0007", title: "The source says unmatched", outcome: "ok", outcomeLabel: "Re-matched",
+      cols: ["bank_txn_id", "entity", "account", "date", "currency", "amount", "description", "source status"],
+      rows: [["BANK-0007", "NSS-UK", "NSS-UK-OPS", "2026-06-21", "GBP", "9,026.31", "STANDING ORDER", "unmatched"]],
+      hl: [7],
+      stages: [
+        ["Source file", "flag", "Planted", "The bank feed marks this line unmatched.", "One of 22 planted unmatched bank lines."],
+        ["Ingestion", "ok", "Loaded", "Valid entity, currency and amount.", ""],
+        ["Accounting rules", "na", "Not applicable", "The five rules cover invoices and intercompany, not bank lines.", ""],
+        ["Reconciliation", "ok", "Matched", "The engine ignores the source label and checks for itself. Payment PAY-0007 has the same entity, currency, amount and date.", "Tight tier: amount within £0.01 and date within 3 days. Loose tier: within 2% and 10 days, reported as a probable match."],
+        ["Close Control Centre", "ok", "Nothing open", "Not counted in outstanding reconciliations.", ""]
+      ],
+      verdict: "The engine doesn't trust the source system's status. 10 of the 22 planted unmatched bank lines were re-matched this way."
+    },
+    {
+      id: "BANK-0072", title: "A bank charge with no payment", outcome: "flag", outcomeLabel: "Correctly unmatched",
+      cols: ["bank_txn_id", "entity", "account", "date", "currency", "amount", "description"],
+      rows: [["BANK-0072", "NHS-US", "NHS-US-OPS", "2026-08-02", "USD", "-63.04", "BANK CHARGES"]],
+      hl: [6],
+      stages: [
+        ["Source file", "flag", "Planted", "A bank charge. No payment record exists for it.", "One of 10 planted bank charges."],
+        ["Ingestion", "ok", "Loaded", "Valid entity, currency and amount.", ""],
+        ["Accounting rules", "na", "Not applicable", "No rule covers bank lines.", ""],
+        ["Reconciliation", "flag", "Unmatched", "No payment for this entity and currency, even within the loose tolerance.", "Loose tier: amount within 2%, date within 10 days."],
+        ["Close Control Centre", "flag", "Outstanding", "Counted in Outstanding reconciliations (10 bank + 12 intercompany = 22) and in NHS-US unreconciled cash.", ""]
+      ],
+      verdict: "Unmatched is the right answer here. Someone needs to post a bank charges journal, and the dashboard says so."
+    }
+  ];
+  const STAGE_KIND = { ok: "ok", flag: "flag", miss: "miss", na: "na", excl: "excl" };
+  const tabsEl = document.getElementById("trace-tabs");
+  const panelEl = document.getElementById("trace-panel");
+  tabsEl.innerHTML = TRACES.map((t, i) => `<button type="button" class="tab" role="tab" id="tab-${t.id}" aria-selected="${i === 0}" aria-controls="trace-panel" data-i="${i}"><span class="id">${t.id}</span><span class="t">${esc(t.title)}</span>${chip(t.outcome, t.outcomeLabel)}</button>`).join("");
+  function renderTrace(i) {
+    const t = TRACES[i];
+    tabsEl.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", String(+b.dataset.i === i)));
+    const head = t.cols.map((c) => `<th>${c}</th>`).join("");
+    const body = t.rows.map((r) => `<tr>${r.map((v, j) => `<td class="${v === "" ? "blank" : ""}${t.hl.includes(j) ? " hl" : ""}">${v === "" ? "blank" : esc(v)}</td>`).join("")}</tr>`).join("");
+    const stages = t.stages.map(([who, k, lbl, txt, deep]) => `<li class="stage"><div class="who"><b>${who}</b>${chip(STAGE_KIND[k], lbl)}</div><div class="what"><p>${esc(txt)}</p>${deep ? `<p class="deep">${esc(deep)}</p>` : ""}</div></li>`).join("");
+    panelEl.innerHTML = `
+      <div class="rawwrap"><table class="raw"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+      <ol class="stages">${stages}</ol>
+      <div class="verdict s-${t.outcome}">${chip(t.outcome, t.outcomeLabel)}<p>${esc(t.verdict)}</p></div>`;
+  }
+  tabsEl.addEventListener("click", (e) => { const b = e.target.closest(".tab"); if (b) renderTrace(+b.dataset.i); });
+  tabsEl.addEventListener("keydown", (e) => {
+    if (!["ArrowRight", "ArrowLeft"].includes(e.key)) return;
+    const cur = [...tabsEl.children].findIndex((b) => b.getAttribute("aria-selected") === "true");
+    const n = (cur + (e.key === "ArrowRight" ? 1 : -1) + TRACES.length) % TRACES.length;
+    renderTrace(n); tabsEl.children[n].focus();
+  });
+  renderTrace(0);
+
+  /* ---------- C: Scorecard ---------- */
+  const SCORE = [
+    { name: "Missing entity code", planted: 7, caught: 7, k: "ok", label: "Caught", where: "Ingestion exception report.", body: "4 invoices are held back from loading and 3 bank lines are reported.", ids: "INV-0004, INV-0029, INV-0030, INV-0040, BANK-0053, BANK-0060, BANK-0070" },
+    { name: "Inconsistent supplier name", planted: 2, caught: 2, k: "ok", label: "Caught", where: "Ingestion fuzzy match.", body: "\"Medical Supplies Limited\" and \"Med Supplies Ltd\" both resolve to Medical Supplies Ltd and load (88 of 92 invoices, against 86 with a plain load).", ids: "INV-0016, INV-0073" },
+    { name: "Unmatched bank line", planted: 22, caught: 22, k: "ok", label: "All accounted for", where: "Reconciliation engine.", body: "10 bank charges stay unmatched, which is correct because they need a manual journal. 10 are re-matched within tolerance. 2 are held back at load because their entity code is blank.", ids: "Unmatched: BANK-0072 to BANK-0081 · Re-matched: BANK-0007, 0008, 0015, 0022, 0024, 0031, 0047, 0048, 0061, 0071 · Held back: BANK-0060, BANK-0070" },
+    { name: "Unmatched intercompany", planted: 12, caught: 12, k: "ok", label: "Caught", where: "Reconciliation engine and the intercompany counterpart rule.", body: "Two independent detectors both find all 12, each with a reason.", ids: "IC-0003 to IC-0007, IC-0028, IC-0031, IC-0032, IC-0037, IC-0040, IC-0041, IC-0044" },
+    { name: "Duplicate invoice", planted: 6, caught: 5, k: "part", label: "5 of 6", where: "Ingestion, the duplicate rule and SQL all find the same 5.", body: "The 6th pair hides behind a blank entity code: INV-0004 is held back before the duplicate check runs, so INV-0091 looks ordinary. Trace it in section B.", ids: "Caught: INV-0087, 0088, 0089, 0090, 0092 · Missed: INV-0091" },
+    { name: "Wrong expense account", planted: 5, caught: 4, k: "part", label: "4 of 5", where: "Supplier-to-account rule.", body: "The 5th, INV-0029, also has a blank entity code, so it never reaches the rule.", ids: "Caught: INV-0046, INV-0051, INV-0055, INV-0085 · Missed: INV-0029" },
+    { name: "Duplicate payment", planted: 4, caught: 0, k: "miss", label: "No detector", where: "None.", body: "They load without a warning. One pair shows up only indirectly, as an odd probable match in AP reconciliation (INV-0059 with PAY-0071).", ids: "PAY-0050/0068, PAY-0003/0069, PAY-0049/0070, PAY-0062/0071" },
+    { name: "Journal posted late", planted: 2, caught: 0, k: "miss", label: "No detector", where: "None.", body: "Entry dates fall in July but the journals are tagged to the August close. No period cut-off check exists.", ids: "JE-0031, JE-0036" },
+    { name: "Unapplied cash", planted: 5, caught: 0, k: "miss", label: "No detector", where: "None.", body: "Payments received with no invoice reference. The API allows this on purpose, but nothing reports or ages them.", ids: "PAY-0072 to PAY-0076" }
+  ];
+  const FILL = { ok: "var(--ok)", part: "var(--flag)", miss: "var(--miss)" };
+  const scoreEl = document.getElementById("score");
+  scoreEl.insertAdjacentHTML("beforeend", SCORE.map((r) => {
+    const pct = Math.round((r.caught / r.planted) * 100);
+    return `<details class="score-row" data-k="${r.k}" data-auto>
+      <summary><span class="name">${r.name}</span><span class="planted num mono">${r.planted}</span>
+        <span class="meter"><span class="track"><span class="fill" style="width:${pct}%;background:${FILL[r.k]}"></span></span><span class="lbl num">${r.caught} of ${r.planted}</span></span>
+        ${chip(r.k, r.label)}<svg class="caret" aria-hidden="true"><use href="#i-caret"/></svg></summary>
+      <div class="score-body"><p><strong>Where:</strong> ${esc(r.where)}</p><p>${esc(r.body)}</p><p class="ids">${esc(r.ids)}</p></div>
+    </details>`;
+  }).join(""));
+  const FILTERS = [["all", "All"], ["ok", "Caught"], ["part", "Partly caught"], ["miss", "No detector"]];
+  const filtEl = document.getElementById("score-filters");
+  filtEl.innerHTML = FILTERS.map(([k, l], i) => `<button type="button" class="filter" id="filter-${k}" data-k="${k}" aria-pressed="${i === 0}">${l}<span class="n">${k === "all" ? SCORE.length : SCORE.filter((r) => r.k === k).length}</span></button>`).join("");
+  filtEl.addEventListener("click", (e) => {
+    const b = e.target.closest(".filter"); if (!b) return;
+    filtEl.querySelectorAll(".filter").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    scoreEl.querySelectorAll(".score-row").forEach((row) => { row.hidden = !(b.dataset.k === "all" || row.dataset.k === b.dataset.k); });
+  });
+
+  /* ---------- D: AI ---------- */
+  const CASES = [
+    ["EVAL-001", "Routine invoice", "£450 from a regular supplier. The AI picks the supplier's usual account.", "ACC-001 at 0.97", "ACC-001", true, false, "All checks pass."],
+    ["EVAL-002", "Supplier name is ambiguous", "\"Med Supplies Co\" partly matches two suppliers. The AI picks the closer one.", "ACC-001 at 0.55", "ACC-001", true, true, "Confidence below 0.95; also picked by the random audit sample."],
+    ["EVAL-003", "A genuine one-off exception", "Software bought from a supplier that is usually coded elsewhere. The AI picks the right, unusual account.", "ACC-002 at 0.93", "ACC-002", true, true, "Disagrees with the supplier's usual account; confidence below 0.95. A person should confirm even though the AI is right."],
+    ["EVAL-004", "Brand-new supplier", "No history to compare with. The AI makes a best guess.", "ACC-001 at 0.35", "ACC-001", true, true, "Confidence below 0.95."],
+    ["EVAL-005", "Mixed invoice", "Office supplies and IT services on one invoice. The AI picks the wrong account.", "ACC-001 at 0.80", "ACC-002", false, true, "Disagrees with the supplier's usual account; confidence below 0.95."],
+    ["EVAL-006", "Invented account code", "The AI states an account that doesn't exist, with 0.99 confidence.", "ACC-999-DOES-NOT-EXIST at 0.99", "ACC-001", false, true, "Not a real account code, whatever the confidence."],
+    ["EVAL-007", "Invented entity code", "The same trick on the entity instead of the account.", "ENT-DOES-NOT-EXIST at 0.98", "ENT-001", false, true, "Not a real entity code."],
+    ["EVAL-008", "Large invoice", "A perfect match in every way, but for £25,000.", "ACC-001 at 0.99", "ACC-001", true, true, "£25,000 is at or above the £10,000 approval threshold. Policy, not a model failure."],
+    ["EVAL-009", "Routine invoice, second supplier", "£75 from another regular supplier.", "ACC-002 at 0.98", "ACC-002", true, false, "All checks pass."],
+    ["EVAL-010", "Looks routine, isn't", "£120 from a supplier that always bills £115 to £125. This one was a different kind of purchase and belonged in another account.", "ACC-001 at 0.99", "ACC-002", false, false, "Nothing observable signals the error. Only the 5% random audit could catch it, and this case wasn't sampled. Disclosed rather than tuned away."],
+    ["EVAL-011", "Amount out of pattern", "£8,500 from a supplier that normally bills £90 to £115. The coding is right.", "ACC-001 at 0.99", "ACC-001", true, true, "Amount is 983 standard deviations from this supplier's average."]
+  ];
+  const Q = {
+    tn: { right: true, rev: false, n: "Right, went straight through", outcome: ["ok", "Auto-approved, correct"] },
+    fp: { right: true, rev: true, n: "Right, checked anyway", outcome: ["flag", "Reviewed, AI was right"] },
+    tp: { right: false, rev: true, n: "Wrong, caught by a person", outcome: ["ok", "Reviewed, error caught"] },
+    fn: { right: false, rev: false, n: "Wrong, went straight through", outcome: ["miss", "Auto-approved, wrong"] }
+  };
+  const qOf = (c) => (c[5] ? (c[6] ? "fp" : "tn") : (c[6] ? "tp" : "fn"));
+  const count = (q) => CASES.filter((c) => qOf(c) === q).length;
+  const matrixEl = document.getElementById("matrix");
+  const cell = (q, cls = "") => `<button type="button" class="cell ${cls}" id="cell-${q}" data-q="${q}" aria-pressed="false"><b class="num">${count(q)}</b><span>${Q[q].n}</span></button>`;
+  matrixEl.innerHTML = `<span></span><span class="hd">Went straight through</span><span class="hd">Sent to a person</span>
+    <span class="rh">AI was right</span>${cell("tn")}${cell("fp")}
+    <span class="rh">AI was wrong</span>${cell("fn", "bad")}${cell("tp")}`;
+  const casesEl = document.getElementById("cases");
+  casesEl.innerHTML = CASES.map((c) => {
+    const q = qOf(c);
+    return `<article class="case ${q}" data-q="${q}">
+      <div class="case-top"><span class="id">${c[0]}</span>${chip(Q[q].outcome[0], Q[q].outcome[1])}</div>
+      <h3>${esc(c[1])}</h3>
+      <p class="why" style="color:var(--ink)">${esc(c[2])}</p>
+      <dl class="deep"><dt>AI said</dt><dd class="mono">${esc(c[3])}</dd><dt>Correct</dt><dd class="mono">${esc(c[4])}</dd></dl>
+      <p class="why"><strong>Policy:</strong> ${esc(c[7])}</p>
+    </article>`;
+  }).join("");
+  const clearBtn = document.getElementById("matrix-clear");
+  function filterCases(q) {
+    matrixEl.querySelectorAll(".cell").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.q === q)));
+    casesEl.querySelectorAll(".case").forEach((a) => { a.hidden = !!q && a.dataset.q !== q; });
+    clearBtn.hidden = !q;
+  }
+  matrixEl.addEventListener("click", (e) => { const b = e.target.closest(".cell"); if (!b) return; filterCases(b.getAttribute("aria-pressed") === "true" ? null : b.dataset.q); });
+  clearBtn.addEventListener("click", () => filterCases(null));
+
+  /* ---------- E: Controls ---------- */
+  const S = { py: "06-python", api: "07-api", rules: "08-accounting-automation", ai: "09-ai", dash: "10-dashboard" };
+  const CONTROLS = [
+    { s: "Every journal balances: debits equal credits", why: "Enforced twice: the API rejects an unbalanced journal before it reaches the database, and a database constraint backs it up.", t: { api: ["create_balanced_journal_entry_succeeds", "unbalanced_journal_entry_is_rejected_before_hitting_the_database", "journal_entry_with_only_one_line_is_422", "journal_line_with_both_debit_and_credit_is_422"] } },
+    { s: "No one approves their own journal, and large ones need a second person", why: "Maker and checker must differ. At £10,000 or more, a journal can't post without a distinct approver.", t: { api: ["self_approved_journal_entry_is_rejected", "journal_entry_without_approver_is_pending_approval"], rules: ["amount_below_threshold_does_not_require_approval", "amount_at_threshold_requires_approval", "amount_above_threshold_requires_approval", "below_threshold_with_approver_posts", "below_threshold_without_approver_is_pending", "above_threshold_with_distinct_approver_posts", "above_threshold_without_approver_stays_pending", "above_threshold_cannot_post_no_matter_who_almost_approved_it"] } },
+    { s: "Duplicate invoices are caught before anyone pays them", why: "Checked at ingestion and by the rules engine. Re-sending the same invoice through the API is harmless, and re-sending it with a different amount is flagged.", t: { py: ["flag_duplicate_invoices_keeps_first_flags_rest", "flag_duplicate_invoices_does_not_flag_different_entities_or_types"], rules: ["check_duplicate_invoices_flags_the_second_occurrence", "check_duplicate_invoices_different_entity_is_not_a_duplicate"], api: ["replaying_same_invoice_number_and_amount_is_idempotent", "replaying_same_invoice_number_different_amount_is_flagged"] } },
+    { s: "Bad or incomplete data is stopped where it enters", why: "Wrong currencies, negative amounts, missing customers or suppliers and unknown references are rejected with a clear error instead of loading quietly.", t: { py: ["valid_invoice_row_passes", "invalid_currency_is_rejected", "negative_amount_is_rejected", "invalid_invoice_type_is_rejected", "blank_entity_code_passes_schema_validation"], rules: ["check_required_fields_passes_a_complete_ar_invoice", "check_required_fields_flags_missing_entity", "check_required_fields_flags_ar_invoice_missing_customer", "check_required_fields_flags_ap_invoice_missing_vendor", "validate_entity_ledger_flags_missing_entity"], api: ["create_invoice_succeeds", "ar_invoice_without_customer_code_is_422", "create_invoice_with_unknown_customer_is_404", "create_payment_without_invoice_succeeds", "create_payment_with_unknown_invoice_is_404", "create_payment_with_negative_amount_is_422", "create_customer_succeeds", "create_customer_with_unknown_entity_is_404", "create_customer_with_bad_currency_is_422", "create_customer_missing_field_is_422"] } },
+    { s: "Records map to the right entity, customer and supplier, even when misspelled", why: "Includes the regression test for bug 2: a blank cell must count as blank.", t: { py: ["map_entity_resolves_known_code", "map_entity_returns_none_for_blank_code", "map_entity_returns_none_for_unknown_code", "map_customer_and_account", "map_vendor_exact_code_match", "map_vendor_fuzzy_name_match_recovers_close_spelling", "map_vendor_unresolved_when_nothing_close_enough", "map_vendor_unresolved_when_both_fields_blank", "map_functions_treat_nan_as_blank_not_a_real_value"] } },
+    { s: "A wrong expense account is flagged, never silently corrected", why: "The supplier's usual account is a check, not an override. A person decides.", t: { rules: ["matching_account_is_confirmed_no_exception", "mismatched_account_is_flagged_not_silently_corrected", "missing_invoice_account_suggests_vendor_default_no_exception", "no_vendor_default_on_file_is_not_an_exception"] } },
+    { s: "Foreign currency converts at the right rate, or says it can't", why: "USD converts to GBP at the nearest dated rate. A missing rate is reported, never treated as zero.", t: { py: ["same_currency_passes_through_unchanged", "usd_converts_to_gbp_using_nearest_rate", "picks_the_nearest_rate_date_not_just_the_first", "no_rate_available_is_reported_not_silently_zeroed"], rules: ["requires_fx_conversion_true_when_currencies_differ", "requires_fx_conversion_false_when_currencies_match"] } },
+    { s: "Bank, supplier and intercompany items match within stated tolerances", why: "Exact matches are claimed before near-misses, and anything left over carries a reason.", t: { py: ["match_transactions_matches_exact_amount_and_close_date", "match_transactions_leaves_transactions_with_no_candidate_unmatched", "match_transactions_respects_day_tolerance", "match_intercompany_matches_reciprocal_pair_with_same_amount", "match_intercompany_flags_single_sided_reference_as_unmatched", "match_intercompany_flags_amount_mismatch_as_unmatched", "reconcile_bank_exact_match", "reconcile_bank_probable_match_on_amount_variance", "reconcile_bank_unmatched_when_nothing_close", "reconcile_bank_tight_matches_are_claimed_before_probable", "reconcile_ap_matches_exact_amount_within_window", "reconcile_ap_ignores_ar_invoices", "reconcile_ap_unmatched_when_no_payment_in_window", "reconcile_ap_probable_match_on_partial_payment", "reconcile_ap_flags_fk_mismatch_as_data_integrity_note", "reconcile_ap_no_fk_mismatch_note_when_link_agrees", "reconcile_intercompany_matches_reversed_pair_same_period_and_amount", "reconcile_intercompany_probable_match_on_period_difference", "reconcile_intercompany_unmatched_when_no_counterpart_at_all", "reconcile_intercompany_probable_match_on_amount_difference"], rules: ["check_intercompany_counterpart_matched_pair_has_no_exceptions", "check_intercompany_counterpart_flags_single_sided_reference", "check_intercompany_counterpart_flags_amount_mismatch"] } },
+    { s: "Unusual amounts get a second look, and some clean items are sampled anyway", why: "Outliers are measured against each supplier's own history. A 5% random sample checks items that pass everything.", t: { rules: ["check_amount_outlier_flags_amount_far_outside_history", "check_amount_outlier_passes_amount_within_normal_range", "check_amount_outlier_skips_when_history_too_short", "check_amount_outlier_skips_when_no_history_at_all", "check_amount_outlier_flags_any_deviation_from_a_constant_history", "check_amount_outlier_does_not_flag_the_constant_amount_itself", "should_sample_for_audit_is_deterministic_for_the_same_id", "should_sample_for_audit_converges_on_the_sample_rate", "should_sample_for_audit_rate_zero_never_selects", "should_sample_for_audit_rate_one_always_selects"] } },
+    { s: "The AI can suggest but not decide", why: "Each review trigger in section D has a test. Overriding the AI requires a written reason, which is recorded.", t: { ai: ["mock_client_returns_the_response_keyed_by_invoice_id_in_the_prompt", "mock_client_raises_for_an_invoice_it_has_no_canned_response_for", "classify_invoice_tool_schema_is_strict_and_complete", "high_confidence_correct_case_does_not_require_review", "low_confidence_case_requires_review", "ambiguous_vendor_conflicting_with_deterministic_rule_requires_review", "missing_data_case_with_no_vendor_history_yields_low_confidence_and_review", "adversarial_hallucinated_account_forces_review_even_at_high_confidence", "nonsensical_entity_code_also_forces_review", "amount_above_approval_threshold_requires_review_even_with_perfect_match", "amount_below_threshold_with_everything_else_clean_does_not_require_review", "amount_far_outside_vendor_history_requires_review_even_with_perfect_match", "amount_within_vendor_history_is_not_flagged_as_outlier", "audit_sample_rate_one_always_forces_review_even_when_everything_else_is_clean", "audit_sample_rate_zero_never_adds_a_sampling_reason", "override_requires_a_non_blank_reason", "override_with_a_reason_succeeds_and_records_it"] } },
+    { s: "Only authorised systems can use the API", why: "Requests without a valid key are refused. The health check is the only open endpoint.", t: { api: ["missing_api_key_is_rejected", "wrong_api_key_is_rejected", "health_check_needs_no_api_key", "trial_balance_requires_api_key"] } },
+    { s: "Reports and the dashboard show what the ledger actually says", why: "Every dashboard figure is a live query, tested against the database. Includes the regression test for the 281-versus-17 bug.", t: { api: ["trial_balance_returns_rows_for_seeded_data", "trial_balance_filters_by_entity_code", "reconciliation_status_returns_a_rate_between_0_and_100", "close_status_returns_rows", "intercompany_exceptions_only_returns_unmatched"], dash: ["close_progress_returns_rows_with_valid_percentages", "outstanding_reconciliations_returns_non_negative_counts", "unreconciled_cash_only_includes_non_matched_rows", "unapproved_journals_never_includes_posted_status", "intercompany_exceptions_never_includes_matched_status", "overdue_ap_all_rows_are_actually_overdue", "manual_journal_pct_is_a_valid_percentage", "ai_recommendations_awaiting_review_matches_known_count", "data_quality_exceptions_has_no_false_missing_field_hits", "get_all_metrics_returns_every_key"] } }
+  ];
+  const SUITE_TOTAL = { py: 40, api: 27, rules: 34, ai: 17, dash: 10 };
+  const human = (n) => { const s = n.replace(/_/g, " ").replace(/\bap\b/g, "AP").replace(/\bar\b/g, "AR").replace(/\bfk\b/g, "FK").replace(/\bfx\b/g, "FX").replace(/\bnan\b/g, "NaN").replace(/\bapi\b/g, "API").replace(/\busd\b/g, "USD").replace(/\bgbp\b/g, "GBP").replace(/\bai\b/g, "AI").replace(/ is 422$/, " is rejected (422)").replace(/ is 404$/, " is refused as not found (404)"); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const perSuite = {}; let total = 0;
+  const ctrlEl = document.getElementById("ctrl-list");
+  ctrlEl.innerHTML = CONTROLS.map((c) => {
+    const items = Object.entries(c.t).flatMap(([k, arr]) => arr.map((n) => ({ k, n })));
+    items.forEach((x) => { perSuite[x.k] = (perSuite[x.k] || 0) + 1; total++; });
+    const suites = [...new Set(items.map((x) => S[x.k]))].join(" · ");
+    return `<details class="ctrl" data-auto>
+      <summary><span class="tick">${icon("ok")}</span><span class="stmt">${esc(c.s)}</span><span class="cnt num">${items.length} passing</span><svg class="caret" aria-hidden="true"><use href="#i-caret"/></svg></summary>
+      <div class="ctrl-body"><p>${esc(c.why)}</p><p class="src deep">Suites: ${suites}</p>
+        <ul class="tests">${items.map((x) => `<li>${icon("ok")}<span>${esc(human(x.n))}<span class="raw deep">${S[x.k]} · test_${x.n}</span></span></li>`).join("")}</ul></div>
+    </details>`;
+  }).join("");
+  const allMatch = Object.keys(SUITE_TOTAL).every((k) => perSuite[k] === SUITE_TOTAL[k]) && total === 128;
+  const checkEl = document.getElementById("ctrl-check");
+  checkEl.className = "chip " + (allMatch ? "s-ok" : "s-miss");
+  checkEl.innerHTML = icon(allMatch ? "ok" : "miss") + (allMatch ? `All ${total} of 128 tests mapped to a control` : `Mapping check failed: ${total} of 128`);
+  document.getElementById("suites").innerHTML = Object.keys(SUITE_TOTAL).map((k) => `<span class="suite">${S[k]} · ${perSuite[k] || 0}</span>`).join("");
+
+  /* ---------- F: Bugs ---------- */
+  const BUGS = [
+    { n: "Bug 3 · dashboard", star: true, h: "The dashboard reported 281 data-quality findings. The real number was 17.", p: "A query left out 3 of the 5 columns the rule checks, so all 88 invoices looked like they were missing fields: 264 false alarms. Caught because the number didn't agree with the answer key.", g: "Fixed in 10-dashboard/data.py. Regression test: data quality exceptions has no false missing-field hits." },
+    { n: "Bug 1 · ingestion", h: "Blank cells didn't reliably become blank", p: "Reading the CSVs left some empty cells as NaN instead of None, so later code saw a value where there wasn't one.", g: "Fixed by cleaning each cell explicitly in 06-python/validation.py." },
+    { n: "Bug 2 · ingestion", h: "Every blank-field check passed when it shouldn't", p: "In Python, NaN counts as true, so \"is this field empty?\" checks let blanks through. Every blank check in ingestion was affected.", g: "Fixed with a shared blank helper. Regression test: map functions treat NaN as blank, not a real value." },
+    { n: "Bug 4 · dashboard", h: "A deprecated Streamlit setting", p: "Minor. The dashboard used a Streamlit option that is being removed.", g: "Replaced. Recorded in the dashboard commit message." }
+  ];
+  document.getElementById("bug-list").innerHTML = BUGS.map((b) => b.star
+    ? `<article class="bug star"><div style="display:grid;gap:8px"><span class="n">${b.n}</span><h3>${esc(b.h)}</h3><p>${esc(b.p)}</p><p class="guard deep">${esc(b.g)}</p></div>
+        <div class="versus" aria-label="281 reported, 17 actual"><div class="was"><b>281</b><span>reported</span></div><div class="is"><b>17</b><span>actual</span></div></div></article>`
+    : `<article class="bug"><span class="n">${b.n}</span><h3>${esc(b.h)}</h3><p>${esc(b.p)}</p><p class="guard deep">${esc(b.g)}</p></article>`).join("");
+
+  /* ---------- init mode ---------- */
+  let saved = "quick";
+  try { saved = localStorage.getItem("ns-mode") || "quick"; } catch (e) {}
+  setMode(saved === "full" ? "full" : "quick");
+})();
+</script>
+</body>
+</html>
