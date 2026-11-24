@@ -390,8 +390,8 @@ footer p { margin: 0; }
     <div class="ai-top">
       <div class="panel">
         <div class="bigstat">
-          <div class="v">9%</div>
-          <p><strong>Inappropriate automation rate:</strong> 1 of 11 cases was approved automatically and was wrong. This is the number that matters most, more than the 64% accuracy, because it measures errors no one looks at.</p>
+          <div class="v">1 of 11</div>
+          <p><strong>Test cases approved automatically and wrong.</strong> These are 11 hand-built cases, several designed to break the policy, run against a mock model. They check that the safety policy works. They are not a real-world error rate.</p>
         </div>
         <div class="panel-title">A suggestion is sent to a person if any of these is true</div>
         <ul class="policy">
@@ -521,7 +521,7 @@ footer p { margin: 0; }
         ["Ingestion", "ok", "Loaded", "Every field is valid, so it loads. Wrong coding isn't a data-format problem.", ""],
         ["Accounting rules", "flag", "Flagged", "The supplier-to-account rule flags the mismatch. It does not correct it automatically.", "Rule: incorrect_account_mapping. Test: mismatched account is flagged, not silently corrected."],
         ["Reconciliation", "flag", "Unmatched", "No payment found within the amount and date window. The invoice is still outstanding.", ""],
-        ["Close Control Centre", "flag", "Two lists", "Shown under \"AI recommendations awaiting review\" (1 of 4) and \"Overdue AP\", 17 days overdue.", "Overdue is measured at the dashboard's fixed reference date of 7 Sep 2026."]
+        ["Close Control Centre", "flag", "Two lists", "Shown under \"Overdue AP\" (17 days overdue) and the panel titled \"AI recommendations awaiting review\" (1 of 4). That panel is filled by the fixed account rule above, not by a live AI call.", "Overdue is measured at the dashboard's fixed reference date of 7 Sep 2026."]
       ],
       verdict: "Caught, then routed to a person to decide. The system doesn't guess which account is right."
     },

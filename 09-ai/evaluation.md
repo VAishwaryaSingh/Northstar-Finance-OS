@@ -35,7 +35,7 @@ The first version of this evaluation (10 cases, no amount-outlier or audit-sampl
 
 ## EVAL-010, honestly, after both new controls
 
-`EVAL-010` is still in the evaluation set, unchanged in spirit: a vendor with a solid historical account match, a high-confidence correct-looking suggestion, an amount well within that vendor's *normal* range (110–125, deliberately not an outlier — this is the point), and no hallucinated codes. Ground truth says it's still wrong, because this was a genuine one-off exception nothing observable flags.
+`EVAL-010` is still in the evaluation set, unchanged in spirit: a vendor with a solid historical account match, a high-confidence correct-looking suggestion, an amount well within that vendor's *normal* range (115–125, deliberately not an outlier — this is the point), and no hallucinated codes. Ground truth says it's still wrong, because this was a genuine one-off exception nothing observable flags.
 
 **In the run this file reflects, EVAL-010 was not selected by the audit sample and still comes back as a false negative.** That is not a scripted outcome — `evaluate.py` calls the real `should_sample_for_audit` function with no override, and this is what it actually returned this run. Because sampling is deterministic per invoice ID (not re-randomized on every run), re-running `evaluate.py` today will reproduce the exact same result; it would only start catching `EVAL-010` if the ID changed, the sample rate were raised, or a future signal specific to this case were added. That's the honest limit being reported, not a bug to quietly fix by re-rolling until it passes.
 
