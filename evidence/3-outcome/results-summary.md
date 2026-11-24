@@ -52,7 +52,7 @@ Straight from the case study's status column:
 ## Live demo
 
 The Close Control Centre runs against a live copy of the same synthetic dataset, no login:
-[northstar-finance-os.streamlit.app](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/). Its metrics are
+[northstar-finance-os.streamlit.app](https://northstar-finance-os.streamlit.app/). Its metrics are
 real queries and rule calls, covered by the 10 dashboard tests in the count above.
 
 ## Limits of this evidence

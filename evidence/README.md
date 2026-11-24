@@ -33,7 +33,7 @@ problems and what it found, and what the system does **not** detect.
 | | |
 |---|---|
 | [Results summary](./3-outcome/results-summary.md) | Measured results, the AI evaluation (including its disclosed failure), and the Target-not-measured table |
-| [Live dashboard](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/) | The Close Control Centre, running on the same synthetic data — no login |
+| [Live dashboard](https://northstar-finance-os.streamlit.app/) | The Close Control Centre, running on the same synthetic data — no login |
 | Detailed outputs | [Reconciliation results](../06-python/reconciliation-engine-results.md) · [exception report](../06-python/exception-report.md) · [rule findings](../08-accounting-automation/rule-findings.md) · [AI evaluation](../09-ai/evaluation-results.md) |
 
 ## Reproduce it

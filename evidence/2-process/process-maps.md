@@ -59,7 +59,7 @@ just written:
 | Automated reconciliation | [`06-python/reconciliation_engine.py`](../../06-python/reconciliation_engine.py) | [`reconciliation-run.txt`](./run-logs/reconciliation-run.txt) |
 | Accounting rules before AI | [`08-accounting-automation/`](../../08-accounting-automation/) | [`rules-run.txt`](./run-logs/rules-run.txt) — 47 findings, 5 rules |
 | AI assistant with a safety policy | [`09-ai/`](../../09-ai/) | [`evaluation-results.md`](../../09-ai/evaluation-results.md) — 11 cases, incl. a disclosed failure |
-| Close Control Centre | [`10-dashboard/`](../../10-dashboard/) | [Live dashboard](https://northstar-finance-os-bndfmftzjicmew2hvehcdx.streamlit.app/) |
+| Close Control Centre | [`10-dashboard/`](../../10-dashboard/) | [Live dashboard](https://northstar-finance-os.streamlit.app/) |
 
 ## 5. Bugs the process itself exposed
 
